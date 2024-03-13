@@ -9,6 +9,10 @@
         "sourceType": "commonjs"
     },
     "rules": {
-      "arrow-body-style":"off"
+      "arrow-body-style":"off",
+      "operator-linebreak":"off",
+      "strict":"off",
+      "arrow-parens":"off",
+      "global-require":"off"
     }
 }

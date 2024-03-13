@@ -1,10 +1,12 @@
+/* eslint-disable import/no-extraneous-dependencies */
+require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
   const server = Hapi.server({
-    port: 5000,
-    host: 'localhost',
+    port: process.env.PORT,
+    host: process.env.HOST,
   });
 
   server.route({
