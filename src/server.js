@@ -3,11 +3,28 @@ require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const ClientError = require('./exceptions/ClientError');
 
+// Albums
+const categories = require('./api/categories');
+const CategoriesService = require('./services/mysql/CategoriesServices');
+const CategoriesValidator = require('./validator/categories/index');
+
 const init = async () => {
+  const categoriesService = new CategoriesService();
+
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
   });
+
+  await server.register([
+    {
+      plugin: categories,
+      options: {
+        service: categoriesService,
+        validator: CategoriesValidator,
+      },
+    },
+  ]);
 
   server.route({
     method: 'GET',

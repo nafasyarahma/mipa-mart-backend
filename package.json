@@ -1,29 +1,35 @@
 {
   "name": "mipa-mart-backend",
   "version": "1.0.0",
+  "type": "commonjs",
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start-dev": "nodemon ./src/server.js"
+    "start-dev": "nodemon ./src/server.js",
+    "generate-model": "sequelize-cli model:generate",
+    "migrate": "sequelize-cli db:migrate"
   },
   "keywords": [],
   "author": "Nafasya Rahma Safitra",
   "license": "ISC",
   "dependencies": {
     "@hapi/hapi": "^21.3.3",
+    "@prisma/client": "^5.11.0",
+    "auto-bind": "^4.0.0",
     "dotenv": "^16.4.5",
     "fs": "^0.0.1-security",
+    "i": "^0.3.7",
     "joi": "^17.12.2",
     "mysql2": "^3.9.2",
-    "path": "^0.12.7",
-    "sequelize": "^6.37.1"
+    "nanoid": "^3.3.6",
+    "npm": "^10.5.0",
+    "path": "^0.12.7"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.29.1",
-    "nanoid": "^5.0.6",
     "nodemon": "^3.1.0",
-    "sequelize-cli": "^6.6.2"
+    "prisma": "^5.11.0"
   }
 }
