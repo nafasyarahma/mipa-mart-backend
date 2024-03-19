@@ -17,4 +17,25 @@ model Category {
   id          String    @id @db.VarChar(255)
   name        String    @db.VarChar(255)
   description String?   @db.Text
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String        @id @db.VarChar(255)
+  name        String        @db.VarChar(255)
+  description String        @db.Text 
+  price       Decimal       @db.Decimal(10, 2)
+  status      ProductStatus        
+  category    Category?     @relation(fields: [category_id], references: [id])
+  category_id String?       @db.VarChar(255)
+
+  @@map("products")
+}
+
+enum ProductStatus {
+  ready
+  preorder
+  soldout
 }

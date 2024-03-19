@@ -4,8 +4,8 @@ const Hapi = require('@hapi/hapi');
 const ClientError = require('./exceptions/ClientError');
 
 // Albums
-const categories = require('./api/categories');
-const CategoriesService = require('./services/mysql/CategoriesServices');
+const categories = require('./api/admin/categories');
+const CategoriesService = require('./services/mysql/admin/CategoriesServices');
 const CategoriesValidator = require('./validator/categories/index');
 
 const init = async () => {

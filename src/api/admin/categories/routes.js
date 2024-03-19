@@ -1,22 +1,22 @@
 const routes = (handler) => [
   {
     method: 'POST',
-    path: '/categories',
+    path: '/admin/categories',
     handler: handler.postCategoryHandler,
   },
   {
     method: 'GET',
-    path: '/categories',
+    path: '/admin/categories',
     handler: handler.getAllCategoryHandler,
   },
   {
     method: 'PUT',
-    path: '/categories/{id}',
+    path: '/admin/categories/{id}',
     handler: handler.putCategoryByIdHandler,
   },
   {
     method: 'DELETE',
-    path: '/categories/{id}',
+    path: '/admin/categories/{id}',
     handler: handler.deleteCategoryByIdHandler,
   },
 ];
