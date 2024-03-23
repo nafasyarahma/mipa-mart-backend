@@ -2,8 +2,8 @@
 const { PrismaClient } = require('@prisma/client');
 const autoBind = require('auto-bind');
 const { nanoid } = require('nanoid');
-const InvariantError = require('../../../exceptions/InvariantError');
-const NotFoundError = require('../../../exceptions/NotFoundError');
+const InvariantError = require('../../exceptions/InvariantError');
+const NotFoundError = require('../../exceptions/NotFoundError');
 
 class CategoriesService {
   constructor() {
@@ -37,6 +37,8 @@ class CategoriesService {
     const result = await this._prisma.category.findMany();
     return result;
   }
+
+  // Mendapatkan detail kategori dan produk
 
   // Mengedit kategori berdasarkan id
   async editCategoryById(id, { name, description }) {

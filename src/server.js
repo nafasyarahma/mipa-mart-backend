@@ -4,13 +4,13 @@ const Hapi = require('@hapi/hapi');
 const ClientError = require('./exceptions/ClientError');
 
 // categories
-const categories = require('./api/admin/categories');
-const CategoriesService = require('./services/mysql/admin/CategoriesServices');
+const categories = require('./api/categories');
+const CategoriesService = require('./services/mysql/CategoriesServices');
 const CategoriesValidator = require('./validator/categories/index');
 
 // products
-const products = require('./api/admin/products');
-const ProductsService = require('./services/mysql/admin/ProductsServices');
+const products = require('./api/products');
+const ProductsService = require('./services/mysql/ProductsServices');
 const ProductsValidator = require('./validator/products/index');
 
 const init = async () => {
