@@ -41,6 +41,7 @@ class ProductsService {
 
   // Mendapatkan detail produk
   async getProductById(id) {
+    await this.checkProductId(id);
     const result = await this._prisma.product.findUnique({
       where: {
         id,
@@ -54,8 +55,8 @@ class ProductsService {
       },
     });
 
-    if (!result || id === null) {
-      throw new NotFoundError('Id produk tidak ditemukan');
+    if (!result) {
+      throw new NotFoundError('Gagal mendapatkan data');
     }
     return result;
   }
@@ -75,7 +76,7 @@ class ProductsService {
     });
 
     if (!result) {
-      throw new InvariantError('Produk gagal diperbarui');
+      throw new InvariantError('Gagal memperbarui produk');
     }
     return result;
   }
