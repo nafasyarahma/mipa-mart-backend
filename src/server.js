@@ -1,6 +1,8 @@
 /* eslint-disable import/no-extraneous-dependencies */
 require('dotenv').config();
 const Hapi = require('@hapi/hapi');
+const Inert = require('@hapi/inert');
+const path = require('path');
 const ClientError = require('./exceptions/ClientError');
 
 // categories
@@ -15,18 +17,27 @@ const ProductsValidator = require('./validator/products/index');
 
 // members
 const members = require('./api/members');
-const MembersService = require('./services/mysql/MembersService');
+const MembersService = require('./services/mysql/MembersServices');
 const MembersValidator = require('./validator/members/index');
+
+const StorageService = require('./services/storage/storageService');
 
 const init = async () => {
   const categoriesService = new CategoriesService();
   const productsService = new ProductsService();
   const membersService = new MembersService();
+  const storageService = new StorageService(path.resolve(__dirname, '../static/upload/images'));
 
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
   });
+
+  await server.register([
+    {
+      plugin: Inert,
+    },
+  ]);
 
   await server.register([
     {
@@ -47,6 +58,7 @@ const init = async () => {
       plugin: members,
       options: {
         service: membersService,
+        storageService,
         validator: MembersValidator,
       },
     },

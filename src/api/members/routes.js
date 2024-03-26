@@ -1,9 +1,18 @@
+const path = require('path');
+
 const routes = (handler) => [
   // member
   {
     method: 'POST',
     path: '/member/register',
     handler: handler.postMemberHandler,
+    options: {
+      payload: {
+        allow: 'multipart/form-data',
+        multipart: true,
+        output: 'stream',
+      },
+    },
   },
 
   // admin
@@ -31,6 +40,15 @@ const routes = (handler) => [
     method: 'DELETE',
     path: '/admin/members/{id}',
     handler: handler.deleteMemberByIdHandler,
+  },
+  {
+    method: 'GET',
+    path: '/upload/{param*}',
+    handler: {
+      directory: {
+        path: path.resolve(__dirname, '../../../static/upload'),
+      },
+    },
   },
 ];
 

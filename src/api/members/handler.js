@@ -1,8 +1,9 @@
 const autoBind = require('auto-bind');
 
 class MembersHandler {
-  constructor(service, validator) {
+  constructor(service, storageService, validator) {
     this._service = service;
+    this._storageService = storageService;
     this._validator = validator;
 
     autoBind(this);
@@ -11,11 +12,14 @@ class MembersHandler {
   async postMemberHandler(request, h) {
     this._validator.validateMemberPayload(request.payload);
     const {
-      username, email, password, name, major, whatsappNumber, address,
+      username, email, password, name, npm, major, ktmImage, whatsappNumber, address, bio,
     } = request.payload;
 
+    const filename = await this._storageService.writeFile(ktmImage, ktmImage.hapi);
+    const ktmUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/${filename}`;
+
     const memberId = await this._service.addMember({
-      username, email, password, name, major, whatsappNumber, address,
+      username, email, password, name, npm, major, ktmUrl, whatsappNumber, address, bio,
     });
 
     const response = h.response({

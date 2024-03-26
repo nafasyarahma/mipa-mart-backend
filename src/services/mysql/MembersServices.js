@@ -6,13 +6,15 @@ const AuthenticationError = require('../../exceptions/AuthenticationError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
 class MembersService {
-  constructor() {
+  constructor(storageService) {
     this._prisma = new PrismaClient();
+
+    this._storageService = storageService;
   }
 
   // -- MENAMBAHKAN MEMBER --
   async addMember({
-    username, email, password, name, major, whatsappNumber, address,
+    username, email, password, name, npm, major, ktmUrl, whatsappNumber, address, bio,
   }) {
     await this.verifyNewUsername(username);
     const id = `member-${nanoid(16)}`;
@@ -25,9 +27,12 @@ class MembersService {
         email,
         password: hashedPassword,
         name,
+        npm,
         major,
+        ktm_image: ktmUrl,
         no_wa: whatsappNumber,
         address,
+        bio,
       },
     });
     if (!result.id) {
@@ -147,6 +152,19 @@ class MembersService {
         id,
       },
     });
+  }
+
+  // Tambah image
+  async addKTMImage(ktmUrl) {
+    const result = await this._prisma.member.create({
+      data: {
+        ktm_image: ktmUrl,
+      },
+    });
+
+    if (!result) {
+      throw new InvariantError('Gagal mengupload gambar');
+    }
   }
 
   // Memverifikasi username memastikan belum digunakan
