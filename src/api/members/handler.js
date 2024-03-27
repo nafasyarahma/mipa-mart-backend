@@ -16,7 +16,7 @@ class MembersHandler {
     } = request.payload;
 
     const filename = await this._storageService.writeFile(ktmImage, ktmImage.hapi);
-    const ktmUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/${filename}`;
+    const ktmUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/ktm/${filename}`;
 
     const memberId = await this._service.addMember({
       username, email, password, name, npm, major, ktmUrl, whatsappNumber, address, bio,

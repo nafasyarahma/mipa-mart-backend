@@ -28,9 +28,10 @@ model Product {
   description String        @db.Text
   price       Decimal       @db.Decimal(10, 2)
   status      ProductStatus
+  images      ProductImages[]
   category    Category?     @relation(fields: [category_id], references: [id])
   category_id String?       @db.VarChar(255)
-  seller      Member        @relation(fields: [member_id], references: [id])
+  seller      Member        @relation(fields: [member_id], references: [id], onDelete: Cascade)
   member_id   String        @db.VarChar(255)
 
   @@map("products")
@@ -54,6 +55,15 @@ model Member {
   Product      Product[]
 
   @@map("members")
+}
+
+model ProductImages {
+  id           String      @id @default(uuid())
+  product      Product     @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  product_id   String      @db.VarChar(255)
+  url          String      @db.VarChar(255)
+
+  @@map("product_images")
 }
 
 enum ProductStatus {

@@ -43,10 +43,10 @@ const routes = (handler) => [
   },
   {
     method: 'GET',
-    path: '/upload/{param*}',
+    path: '/upload/images/ktm/{param*}',
     handler: {
       directory: {
-        path: path.resolve(__dirname, '../../../static/upload'),
+        path: path.resolve(__dirname, '../../../static/upload/images/ktm'),
       },
     },
   },

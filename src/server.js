@@ -24,9 +24,10 @@ const StorageService = require('./services/storage/storageService');
 
 const init = async () => {
   const categoriesService = new CategoriesService();
-  const productsService = new ProductsService();
   const membersService = new MembersService();
-  const storageService = new StorageService(path.resolve(__dirname, '../static/upload/images'));
+  const storageService = new StorageService(path.resolve(__dirname, '../static/upload/images/ktm'));
+  const productImagesStorageService = new StorageService(path.resolve(__dirname, '../static/upload/images/product'));
+  const productsService = new ProductsService(productImagesStorageService);
 
   const server = Hapi.server({
     port: process.env.PORT,

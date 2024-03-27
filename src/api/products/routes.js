@@ -1,8 +1,17 @@
+const path = require('path');
+
 const routes = (handler) => [
   {
     method: 'POST',
     path: '/admin/products',
     handler: handler.postProductHandler,
+    options: {
+      payload: {
+        allow: 'multipart/form-data',
+        multipart: true,
+        output: 'stream',
+      },
+    },
   },
   {
     method: 'GET',
@@ -23,6 +32,15 @@ const routes = (handler) => [
     method: 'DELETE',
     path: '/admin/products/{id}',
     handler: handler.deleteProductByIdHandler,
+  },
+  {
+    method: 'GET',
+    path: '/upload/images/product/{param*}',
+    handler: {
+      directory: {
+        path: path.resolve(__dirname, '../../../static/upload/images/product'),
+      },
+    },
   },
 ];
 

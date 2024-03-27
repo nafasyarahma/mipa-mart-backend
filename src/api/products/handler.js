@@ -11,11 +11,11 @@ class ProductsHandler {
   async postProductHandler(request, h) {
     this._validator.validateProductPayload(request.payload);
     const {
-      name, description, price, status, categoryId,
+      name, description, price, status, productImages, categoryId,
     } = request.payload;
 
     const productId = await this._service.addProduct({
-      name, description, price, status, categoryId,
+      name, description, price, status, productImages, categoryId,
     });
 
     const response = h.response({
