@@ -13,6 +13,11 @@ datasource db {
   url      = "mysql://root:@localhost:3306/mipa_mart"
 }
 
+model Authentications {
+  id          String    @id @default(uuid())
+  token       String    @db.Text 
+}
+
 model Category {
   id          String    @id @db.VarChar(255)
   name        String    @db.VarChar(255)

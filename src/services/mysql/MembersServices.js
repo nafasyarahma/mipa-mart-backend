@@ -192,7 +192,7 @@ class MembersService {
     }
   }
 
-  async verifyUserCredential(username, password) {
+  async verifyMemberCredential(username, password) {
     const result = await this._prisma.member.findFirst({
       where: {
         username,
@@ -203,8 +203,8 @@ class MembersService {
       },
     });
 
-    if (!result.length) {
-      throw new AuthenticationError('Kredensial yang Anda berikan salah');
+    if (!result) {
+      throw new AuthenticationError('Username atau password yang Anda masukkan salah');
     }
 
     const { id, password: hashedPassword } = result;

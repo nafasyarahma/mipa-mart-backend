@@ -1,6 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 require('dotenv').config();
 const Hapi = require('@hapi/hapi');
+const Jwt = require('@hapi/jwt');
 const Inert = require('@hapi/inert');
 const path = require('path');
 const ClientError = require('./exceptions/ClientError');
@@ -20,7 +21,14 @@ const members = require('./api/members');
 const MembersService = require('./services/mysql/MembersServices');
 const MembersValidator = require('./validator/members/index');
 
+// storage
 const StorageService = require('./services/storage/storageService');
+
+// authentications
+const authentications = require('./api/authentications');
+const AuthenticationsService = require('./services/mysql/AuthenticationsServices');
+const TokenManager = require('./tokenize/TokenManager');
+const AuthentcationsValidator = require('./validator/authentications/index');
 
 const init = async () => {
   const categoriesService = new CategoriesService();
@@ -28,6 +36,7 @@ const init = async () => {
   const storageService = new StorageService(path.resolve(__dirname, '../static/upload/images/ktm'));
   const productImagesStorageService = new StorageService(path.resolve(__dirname, '../static/upload/images/product'));
   const productsService = new ProductsService(productImagesStorageService);
+  const authenticationsService = new AuthenticationsService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -38,7 +47,27 @@ const init = async () => {
     {
       plugin: Inert,
     },
+    {
+      plugin: Jwt,
+    },
   ]);
+
+  // mendefinisikan strategy autentikasi jwt
+  server.auth.strategy('mipamart_jwt', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
+  });
 
   await server.register([
     {
@@ -61,6 +90,15 @@ const init = async () => {
         service: membersService,
         storageService,
         validator: MembersValidator,
+      },
+    },
+    {
+      plugin: authentications,
+      options: {
+        authenticationsService,
+        membersService,
+        tokenManager: TokenManager,
+        validator: AuthentcationsValidator,
       },
     },
   ]);
