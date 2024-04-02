@@ -1,37 +1,58 @@
 const path = require('path');
 
 const routes = (handler) => [
+  // -- MEMBER --
   {
     method: 'POST',
-    path: '/admin/products',
+    path: '/member/products',
     handler: handler.postProductHandler,
     options: {
       payload: {
         allow: 'multipart/form-data',
         multipart: true,
         output: 'stream',
+        maxBytes: 100485760,
       },
+      auth: 'mipamart_jwt',
     },
   },
   {
     method: 'GET',
-    path: '/admin/products',
-    handler: handler.getAllProductsHandler,
+    path: '/member/products',
+    handler: handler.getProductsHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
   },
   {
     method: 'GET',
-    path: '/admin/products/{id}',
+    path: '/member/products/{id}',
     handler: handler.getProductByIdHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
   },
   {
     method: 'PUT',
-    path: '/admin/products/{id}',
+    path: '/member/products/{id}',
     handler: handler.putProductByIdHandler,
+    options: {
+      payload: {
+        allow: 'multipart/form-data',
+        multipart: true,
+        output: 'stream',
+        maxBytes: 100485760,
+      },
+      auth: 'mipamart_jwt',
+    },
   },
   {
     method: 'DELETE',
-    path: '/admin/products/{id}',
+    path: '/member/products/{id}',
     handler: handler.deleteProductByIdHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
   },
   {
     method: 'GET',

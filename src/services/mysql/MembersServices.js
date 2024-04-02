@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const InvariantError = require('../../exceptions/InvariantError');
 const AuthenticationError = require('../../exceptions/AuthenticationError');
 const NotFoundError = require('../../exceptions/NotFoundError');
+const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class MembersService {
   constructor(storageService) {
@@ -50,6 +51,7 @@ class MembersService {
         name: true,
         email: true,
         no_wa: true,
+        ktm_image: true,
         verif_status: true,
       },
     });
@@ -215,6 +217,21 @@ class MembersService {
     }
 
     return id;
+  }
+
+  // Mengecek status verifikasi member
+  async checkVerificationStatus(username) {
+    const member = await this._prisma.member.findFirst({
+      where: {
+        username,
+      },
+    });
+
+    if (member.verif_status === 'pending') {
+      throw new AuthorizationError('Akun anda sedang dalam proses verifikasi. Mohon tunggu hingga status disetujui');
+    } else if (member.verif_status === 'rejected') {
+      throw new AuthorizationError('Permintaan registrasi akun Anda ditolak. Silahkan registrasi ulang dengan data yang benar atau hubungi Admin');
+    }
   }
 }
 

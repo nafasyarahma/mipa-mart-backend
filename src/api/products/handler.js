@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 const autoBind = require('auto-bind');
 
 class ProductsHandler {
@@ -14,8 +15,18 @@ class ProductsHandler {
       name, description, price, status, productImages, categoryId,
     } = request.payload;
 
+    if (Array.isArray(productImages)) {
+      for (const image of productImages) {
+        this._validator.validateImageHeaders(image.hapi.headers);
+      }
+    } else {
+      this._validator.validateImageHeaders(productImages.hapi.headers);
+    }
+
+    const { id: credentialId } = request.auth.credentials;
+
     const productId = await this._service.addProduct({
-      name, description, price, status, productImages, categoryId,
+      name, description, price, status, productImages, categoryId, memberId: credentialId,
     });
 
     const response = h.response({
@@ -30,8 +41,9 @@ class ProductsHandler {
     return response;
   }
 
-  async getAllProductsHandler() {
-    const products = await this._service.getAllProducts();
+  async getProductsHandler(request) {
+    const { id: credentialId } = request.auth.credentials;
+    const products = await this._service.getProducts(credentialId);
 
     return {
       status: 'success',
@@ -43,7 +55,9 @@ class ProductsHandler {
 
   async getProductByIdHandler(request) {
     const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
 
+    await this._service.verifyProductMember(id, credentialId);
     const product = await this._service.getProductById(id);
 
     return {
@@ -57,7 +71,18 @@ class ProductsHandler {
   async putProductByIdHandler(request) {
     this._validator.validateProductPayload(request.payload);
     const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+    const { productImages } = request.payload;
 
+    if (Array.isArray(productImages)) {
+      for (const image of productImages) {
+        this._validator.validateImageHeaders(image.hapi.headers);
+      }
+    } else {
+      this._validator.validateImageHeaders(productImages.hapi.headers);
+    }
+
+    await this._service.verifyProductMember(id, credentialId);
     const product = await this._service.editProductById(id, request.payload);
 
     return {
@@ -71,7 +96,9 @@ class ProductsHandler {
 
   async deleteProductByIdHandler(request) {
     const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
 
+    await this._service.verifyProductMember(id, credentialId);
     await this._service.deleteProductById(id);
 
     return {

@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 const { PrismaClient } = require('@prisma/client');
 const autoBind = require('auto-bind');
@@ -6,6 +7,7 @@ const path = require('path');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
+const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class ProductsService {
   constructor(storageService) {
@@ -15,8 +17,9 @@ class ProductsService {
     autoBind(this);
   }
 
+  // -- MENAMBAHKAN PRODUK --
   async addProduct({
-    name, description, price, status, productImages, categoryId,
+    name, description, price, status, productImages, categoryId, memberId,
   }) {
     const id = `product-${nanoid(16)}`;
 
@@ -28,7 +31,7 @@ class ProductsService {
         price,
         status,
         category_id: categoryId,
-        member_id: 'member-Yj8_ctWY0pNv3su6',
+        member_id: memberId,
       },
     });
 
@@ -40,15 +43,18 @@ class ProductsService {
     return result.id;
   }
 
-  // Mendapatkan semua produk
-  async getAllProducts() {
-    const result = await this._prisma.product.findMany();
+  // -- MENDAPATKAN PRODUK YANG DIMILIKI MEMBER --
+  async getProducts(memberId) {
+    const result = await this._prisma.product.findMany({
+      where: {
+        member_id: memberId,
+      },
+    });
     return result;
   }
 
-  // Mendapatkan detail produk
+  // -- MENDAPATKAN DETAIL PRODUK --
   async getProductById(id) {
-    await this.checkProductId(id);
     const result = await this._prisma.product.findUnique({
       where: {
         id,
@@ -86,11 +92,16 @@ class ProductsService {
     return modifiedResult;
   }
 
-  // Mengedit Produk berdasarkan id
+  // -- MENGEDIT DETAIL PRODUK --
   async editProductById(id, {
-    name, description, price, status,
+    name, description, price, status, productImages,
   }) {
-    await this.checkProductId(id);
+    // Hapus gambar-gambar lama terkait dengan produk
+    await this.deleteProductFromStorage(id);
+
+    // Tambahkan gambar-gambar baru
+    await this.addProductImages(productImages, id);
+
     const result = await this._prisma.product.update({
       where: {
         id,
@@ -103,11 +114,13 @@ class ProductsService {
     if (!result) {
       throw new InvariantError('Gagal memperbarui produk');
     }
+
+    // dev mode
     return result;
   }
 
+  // -- MENGHAPUS PRODUK --
   async deleteProductById(id) {
-    await this.checkProductId(id);
     await this.deleteProductFromStorage(id);
 
     await this._prisma.product.delete({
@@ -117,32 +130,49 @@ class ProductsService {
     });
   }
 
-  // Mengecek id produk di db
-  async checkProductId(id) {
-    const productId = await this._prisma.product.findUnique({
-      where: {
-        id,
-      },
-    });
-    if (!productId || id === null) {
-      throw new NotFoundError('Id produk tidak ditemukan');
-    }
-  }
-
+  // -- MENAMBAHKAN FOTO PRODUK --
   async addProductImages(images, productId) {
     try {
-      const uploadedImages = await Promise.all(images.map(async (image) => {
-        const filename = await this._storageService.writeFile(image, image.hapi);
-        const imageUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/product/${filename}`;
+      // const uploadedImages = await Promise.all(images.map(async (image) => {
+      //   const filename = await this._storageService.writeFile(image, image.hapi);
+      //   const imageUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/product/${filename}`;
 
+      //   const savedImage = await this._prisma.productImages.create({
+      //     data: {
+      //       product_id: productId,
+      //       url: imageUrl,
+      //     },
+      //   });
+      //   return savedImage;
+      // }));
+      const uploadedImages = [];
+
+      if (Array.isArray(images)) {
+        // Jika images adalah array (multiple file)
+        for (const image of images) {
+          const filename = await this._storageService.writeFile(image, image.hapi);
+          const imageUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/product/${filename}`;
+
+          const savedImage = await this._prisma.productImages.create({
+            data: {
+              product_id: productId,
+              url: imageUrl,
+            },
+          });
+          uploadedImages.push(savedImage);
+        }
+      } else if (images !== null) {
+        // Jika images adalah objek tunggal (file tunggal)
+        const filename = await this._storageService.writeFile(images, images.hapi);
+        const imageUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/product/${filename}`;
         const savedImage = await this._prisma.productImages.create({
           data: {
             product_id: productId,
             url: imageUrl,
           },
         });
-        return savedImage;
-      }));
+        uploadedImages.push(savedImage);
+      }
 
       return uploadedImages;
     } catch (error) {
@@ -151,7 +181,7 @@ class ProductsService {
     }
   }
 
-  // delete from storage
+  // -- MENGHAPUS GAMBAR DARI DIREKTORI SAAT GAMBAR DIHAPUS --
   async deleteProductFromStorage(productId) {
     const productImages = await this._prisma.productImages.findMany({
       where: {
@@ -172,6 +202,43 @@ class ProductsService {
           if (err) throw err;
         });
       }
+    }
+
+    await this._prisma.productImages.deleteMany({
+      where: {
+        product_id: productId,
+      },
+    });
+  }
+
+  // Mengecek id produk di db
+  async checkProductId(id) {
+    const productId = await this._prisma.product.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!productId || id === null) {
+      throw new NotFoundError('Id produk tidak ditemukan');
+    }
+  }
+
+  // Memeriksa apakah produk milik member yang sesuai
+  async verifyProductMember(id, memberId) {
+    const result = await this._prisma.product.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!result) {
+      throw new NotFoundError('Produk tidak ditemukan');
+    }
+
+    const productMember = result.member_id;
+
+    if (productMember !== memberId) {
+      throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
     }
   }
 }

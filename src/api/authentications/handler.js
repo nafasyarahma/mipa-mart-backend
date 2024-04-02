@@ -15,6 +15,8 @@ class AuthenticationsHandler {
     this._validator.validatePostAuthenticationPayload(request.payload);
 
     const { username, password, role } = request.payload;
+    await this._membersService.checkVerificationStatus(username);
+
     const id = await this._membersService.verifyMemberCredential(username, password);
 
     const accessToken = this._tokenManager.generateAccessToken({ id, role });
