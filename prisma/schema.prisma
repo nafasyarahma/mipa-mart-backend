@@ -58,6 +58,8 @@ model Member {
   created_at   DateTime    @default(now())
   updated_at   DateTime    @updatedAt
   Product      Product[]
+  PaymentMethod      PaymentMethod[]
+  DeliveryMethod     DeliveryMethod[]
 
   @@map("members")
 }
@@ -69,6 +71,27 @@ model ProductImages {
   url          String      @db.VarChar(255)
 
   @@map("product_images")
+}
+
+model PaymentMethod {
+  id          String      @id @db.VarChar(255)
+  provider    String      @db.VarChar(255)
+  no_account  String      @db.VarChar(255)
+  name        String      @db.VarChar(255)
+  member      Member      @relation(fields: [member_id], references: [id], onDelete: Cascade)  
+  member_id   String      @db.VarChar(255)
+
+  @@map("payment_methods")   
+}
+
+model DeliveryMethod {
+  id          String      @id @db.VarChar(255)
+  method      String      @db.VarChar(255)
+  description String      @db.VarChar(255)
+  member      Member      @relation(fields: [member_id], references: [id], onDelete: Cascade)  
+  member_id   String      @db.VarChar(255)
+
+  @@map("delivery_methods") 
 }
 
 model Customer {

@@ -30,6 +30,11 @@ const AuthenticationsService = require('./services/mysql/AuthenticationsServices
 const TokenManager = require('./tokenize/TokenManager');
 const AuthentcationsValidator = require('./validator/authentications/index');
 
+// payment methods
+const paymentMethods = require('./api/paymentMethods');
+const PaymentMethodsService = require('./services/mysql/PaymentMethodsServices');
+const PaymentMethodsValidator = require('./validator/paymentMethods/index');
+
 // customer
 const customers = require('./api/customers');
 const CustomersService = require('./services/mysql/CustomersServices');
@@ -41,6 +46,7 @@ const init = async () => {
   const storageService = new StorageService(path.resolve(__dirname, '../static/upload/images/ktm'));
   const productImagesStorageService = new StorageService(path.resolve(__dirname, '../static/upload/images/product'));
   const productsService = new ProductsService(productImagesStorageService);
+  const paymentMethodsService = new PaymentMethodsService();
   const authenticationsService = new AuthenticationsService();
   const customersService = new CustomersService();
 
@@ -96,6 +102,13 @@ const init = async () => {
         service: membersService,
         storageService,
         validator: MembersValidator,
+      },
+    },
+    {
+      plugin: paymentMethods,
+      options: {
+        service: paymentMethodsService,
+        validator: PaymentMethodsValidator,
       },
     },
     {
