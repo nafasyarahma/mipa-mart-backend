@@ -30,6 +30,11 @@ const AuthenticationsService = require('./services/mysql/AuthenticationsServices
 const TokenManager = require('./tokenize/TokenManager');
 const AuthentcationsValidator = require('./validator/authentications/index');
 
+// customer
+const customers = require('./api/customers');
+const CustomersService = require('./services/mysql/CustomersServices');
+const CustomersValidator = require('./validator/custumers/index');
+
 const init = async () => {
   const categoriesService = new CategoriesService();
   const membersService = new MembersService();
@@ -37,6 +42,7 @@ const init = async () => {
   const productImagesStorageService = new StorageService(path.resolve(__dirname, '../static/upload/images/product'));
   const productsService = new ProductsService(productImagesStorageService);
   const authenticationsService = new AuthenticationsService();
+  const customersService = new CustomersService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -99,6 +105,13 @@ const init = async () => {
         membersService,
         tokenManager: TokenManager,
         validator: AuthentcationsValidator,
+      },
+    },
+    {
+      plugin: customers,
+      options: {
+        service: customersService,
+        validator: CustomersValidator,
       },
     },
   ]);

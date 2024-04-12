@@ -37,7 +37,7 @@ class MembersService {
       },
     });
     if (!result.id) {
-      throw new InvariantError('User gagal ditambahkan');
+      throw new InvariantError('Member gagal ditambahkan');
     }
 
     return result.id;

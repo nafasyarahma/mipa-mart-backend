@@ -5,9 +5,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start-dev": "nodemon ./src/server.js",
-    "generate-model": "sequelize-cli model:generate",
-    "migrate": "sequelize-cli db:migrate"
+    "start-dev": "nodemon ./src/server.js"
   },
   "keywords": [],
   "author": "Nafasya Rahma Safitra",
