@@ -50,7 +50,7 @@ class PaymentMethodsHandler {
 
     return {
       status: 'success',
-      message: 'Metode pembayaran berhasil dihapus',
+      message: 'Berhasil menghapus metode pembayaran',
     };
   }
 }

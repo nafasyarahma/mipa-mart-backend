@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 const { PrismaClient } = require('@prisma/client');
-// const autoBind = require('auto-bind');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
@@ -40,7 +39,7 @@ class PaymentMethodsService {
     return result;
   }
 
-  // -- MENGEDIT DEATIL METODE PEMBAYARAN --
+  // -- MENGHAPUS DEATIL METODE PEMBAYARAN --
   async deletePaymentMethodById(id) {
     await this._prisma.paymentMethod.delete({
       where: {

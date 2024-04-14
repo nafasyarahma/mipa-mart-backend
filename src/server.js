@@ -35,10 +35,15 @@ const paymentMethods = require('./api/paymentMethods');
 const PaymentMethodsService = require('./services/mysql/PaymentMethodsServices');
 const PaymentMethodsValidator = require('./validator/paymentMethods/index');
 
+// delivery methods
+const deliveryMethods = require('./api/deliveryMethods');
+const DeliveryMethodsService = require('./services/mysql/DeliveryMethodsServices');
+const DeliveryMethodsValidator = require('./validator/deliveryMethods/index');
+
 // customer
 const customers = require('./api/customers');
 const CustomersService = require('./services/mysql/CustomersServices');
-const CustomersValidator = require('./validator/custumers/index');
+const CustomersValidator = require('./validator/customers/index');
 
 const init = async () => {
   const categoriesService = new CategoriesService();
@@ -47,6 +52,7 @@ const init = async () => {
   const productImagesStorageService = new StorageService(path.resolve(__dirname, '../static/upload/images/product'));
   const productsService = new ProductsService(productImagesStorageService);
   const paymentMethodsService = new PaymentMethodsService();
+  const deliveryMethodsService = new DeliveryMethodsService();
   const authenticationsService = new AuthenticationsService();
   const customersService = new CustomersService();
 
@@ -109,6 +115,13 @@ const init = async () => {
       options: {
         service: paymentMethodsService,
         validator: PaymentMethodsValidator,
+      },
+    },
+    {
+      plugin: deliveryMethods,
+      options: {
+        service: deliveryMethodsService,
+        validator: DeliveryMethodsValidator,
       },
     },
     {
