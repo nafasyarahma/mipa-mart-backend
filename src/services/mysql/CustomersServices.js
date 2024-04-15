@@ -3,6 +3,7 @@ const { nanoid } = require('nanoid');
 const bcrypt = require('bcrypt');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
+const AuthenticationError = require('../../exceptions/AuthenticationError');
 
 class CustomersService {
   constructor() {
@@ -149,6 +150,32 @@ class CustomersService {
     if (!customerId || id === null) {
       throw new NotFoundError('Id customer tidak ditemukan');
     }
+  }
+
+  // Memverifikasi kredensial customer (kesesuaian uname/pw)
+  async verifyCustomerCredential(username, password) {
+    const result = await this._prisma.customer.findFirst({
+      where: {
+        username,
+      },
+      select: {
+        id: true,
+        password: true,
+      },
+    });
+
+    if (!result) {
+      throw new AuthenticationError('Username atau password yang Anda masukkan salah');
+    }
+
+    const { id, password: hashedPassword } = result;
+    const match = await bcrypt.compare(password, hashedPassword);
+
+    if (!match) {
+      throw new AuthenticationError('Username atau password yang Anda masukkan salah');
+    }
+
+    return id;
   }
 }
 

@@ -213,7 +213,7 @@ class MembersService {
     const match = await bcrypt.compare(password, hashedPassword);
 
     if (!match) {
-      throw new AuthenticationError('Kredensial yang Anda berikan salah');
+      throw new AuthenticationError('Username atau password yang Anda masukkan salah');
     }
 
     return id;
@@ -226,6 +226,10 @@ class MembersService {
         username,
       },
     });
+
+    if (!member) {
+      throw new NotFoundError('Username member tidak ditemukan');
+    }
 
     if (member.verif_status === 'pending') {
       throw new AuthorizationError('Akun anda sedang dalam proses verifikasi. Mohon tunggu hingga status disetujui');

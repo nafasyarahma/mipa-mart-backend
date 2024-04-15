@@ -1,9 +1,10 @@
 const autoBind = require('auto-bind');
 
 class AuthenticationsHandler {
-  constructor(authenticationsService, membersService, tokenManager, validator) {
+  constructor(authenticationsService, membersService, customersService, tokenManager, validator) {
     this._authenticationsService = authenticationsService;
     this._membersService = membersService;
+    this._customersService = customersService;
     this._tokenManager = tokenManager;
     this._validator = validator;
 
@@ -15,9 +16,15 @@ class AuthenticationsHandler {
     this._validator.validatePostAuthenticationPayload(request.payload);
 
     const { username, password, role } = request.payload;
-    await this._membersService.checkVerificationStatus(username);
 
-    const id = await this._membersService.verifyMemberCredential(username, password);
+    let id;
+
+    if (role === 'member') {
+      await this._membersService.checkVerificationStatus(username);
+      id = await this._membersService.verifyMemberCredential(username, password);
+    } else if (role === 'customer') {
+      id = await this._customersService.verifyCustomerCredential(username, password);
+    }
 
     const accessToken = this._tokenManager.generateAccessToken({ id, role });
     const refreshToken = this._tokenManager.generateRefreshToken({ id, role });
