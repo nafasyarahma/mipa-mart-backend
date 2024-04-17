@@ -50,6 +50,10 @@ const carts = require('./api/carts');
 const CartsService = require('./services/mysql/CartsServices');
 const CartsValidator = require('./validator/carts/index');
 
+const orders = require('./api/orders');
+const OrdersService = require('./services/mysql/OrdersService');
+const OrdersValidator = require('./validator/orders/index');
+
 const init = async () => {
   const categoriesService = new CategoriesService();
   const membersService = new MembersService();
@@ -61,6 +65,8 @@ const init = async () => {
   const authenticationsService = new AuthenticationsService();
   const customersService = new CustomersService();
   const cartsService = new CartsService();
+  const paymentImagesStorageService = new StorageService(path.resolve(__dirname, '../static/upload/images/payment'));
+  const ordersService = new OrdersService(paymentImagesStorageService);
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -152,6 +158,14 @@ const init = async () => {
       options: {
         service: cartsService,
         validator: CartsValidator,
+      },
+    },
+    {
+      plugin: orders,
+      options: {
+        service: ordersService,
+        paymentMethodsService,
+        validator: OrdersValidator,
       },
     },
   ]);

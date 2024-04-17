@@ -79,6 +79,41 @@ class DeliveryMethodsService {
       throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
     }
   }
+
+  async verifyDeliveryMethod({ customerId, deliveryMethodId }) {
+    const deliveryMethod = await this._prisma.deliveryMethod.findUnique({
+      where: {
+        id: deliveryMethodId,
+      },
+    });
+
+    if (!deliveryMethod) {
+      throw new NotFoundError('Metode pengiriman tidak ditemukan');
+    }
+
+    const deliveryMethodMember = deliveryMethod.member_id;
+
+    const cartItem = await this._prisma.cartItem.findFirst({
+      where: {
+        customer_id: customerId,
+      },
+      include: {
+        product: true,
+      },
+    });
+
+    if (!cartItem || !cartItem.product) {
+      throw new NotFoundError('Keranjang kosong');
+    }
+
+    // jika ada item, dapatkan data member_id dari produk pertama di keranjang
+    const cartMemberId = cartItem.product.member_id;
+
+    // jika pemilik metode deliv dari payload tidak sama dengan pemilik produk di cart
+    if (deliveryMethodMember !== cartMemberId) {
+      throw new AuthorizationError('Anda tidak dapat memilih metode pengiriman ini');
+    }
+  }
 }
 
 module.exports = DeliveryMethodsService;

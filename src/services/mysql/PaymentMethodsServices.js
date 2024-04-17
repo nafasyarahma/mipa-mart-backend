@@ -66,6 +66,68 @@ class PaymentMethodsService {
       throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
     }
   }
+
+  /* ===================== CUSTOMER SCOPE ==================== */
+  // -- Mendapatkan metode bayar member sesuai item pada cart --
+  async getPaymentMethodOfCartItemMember(customerId) {
+    const cartItem = await this._prisma.cartItem.findFirst({
+      where: {
+        customer_id: customerId,
+      },
+      include: {
+        product: true,
+      },
+    });
+
+    if (!cartItem || !cartItem.product) {
+      throw new NotFoundError('Keranjang kosong');
+    }
+
+    // jika ada item, dapatkan data member_id dari produk pertama di keranjang
+    const cartMemberId = cartItem.product.member_id;
+
+    const paymentMethods = await this._prisma.paymentMethod.findMany({
+      where: {
+        member_id: cartMemberId,
+      },
+    });
+    return paymentMethods;
+  }
+
+  async verifyPaymentMethod({ customerId, paymentMethodId }) {
+    const paymentMethod = await this._prisma.paymentMethod.findUnique({
+      where: {
+        id: paymentMethodId,
+      },
+    });
+
+    if (!paymentMethod) {
+      throw new NotFoundError('Metode pembayatan tidak ditemukan');
+    }
+
+    const paymentMethodMember = paymentMethod.member_id;
+
+    const cartItem = await this._prisma.cartItem.findFirst({
+      where: {
+        customer_id: customerId,
+      },
+      include: {
+        product: true,
+      },
+    });
+
+    if (!cartItem || !cartItem.product) {
+      throw new NotFoundError('Keranjang kosong');
+    }
+
+    // jika ada item, dapatkan data member_id dari produk pertama di keranjang
+    const cartMemberId = cartItem.product.member_id;
+
+    // jika pemilik metode bayar dari payload tidak sama dengan pemilik produk di cart
+    if (paymentMethodMember !== cartMemberId) {
+      throw new AuthorizationError('Anda tidak dapat memilih metode pembayaran ini');
+    }
+  }
 }
 
 module.exports = PaymentMethodsService;

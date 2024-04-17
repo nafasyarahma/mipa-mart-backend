@@ -53,6 +53,18 @@ class PaymentMethodsHandler {
       message: 'Berhasil menghapus metode pembayaran',
     };
   }
+
+  async getCartItemPaymentMethodsHandler(request) {
+    const { id: credentialId } = request.auth.credentials;
+    const paymentMethods = await this._service.getPaymentMethodOfCartItemMember(credentialId);
+
+    return {
+      status: 'success',
+      data: {
+        paymentMethods,
+      },
+    };
+  }
 }
 
 module.exports = PaymentMethodsHandler;

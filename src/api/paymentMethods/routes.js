@@ -23,6 +23,15 @@ const routes = (handler) => [
       auth: 'mipamart_jwt',
     },
   },
+  // CUSTOMER
+  {
+    method: 'GET',
+    path: '/customer/order/payment-methods',
+    handler: handler.getCartItemPaymentMethodsHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
 ];
 
 module.exports = routes;

@@ -19,6 +19,7 @@ class CartsService {
         id: productId,
       },
     });
+
     if (!product) {
       throw new NotFoundError('Produk tidak ditemukan');
     }
@@ -26,24 +27,22 @@ class CartsService {
     const productMemberId = product.member_id;
 
     // periksa item di cart
-    const cartItems = await this._prisma.cartItem.findMany({
+    const cartItem = await this._prisma.cartItem.findFirst({
       where: {
         customer_id: customerId,
       },
+      include: {
+        product: true,
+      },
     });
 
-    // jika ada item, dapatkan data member_id dari produk pertama di keranjang
-    if (cartItems.length > 0) {
-      const firstProductInCart = cartItems[0];
-      const firstProductId = firstProductInCart.product_id;
-      const firstProduct = await this._prisma.product.findUnique({
-        where: {
-          id: firstProductId,
-        },
-      });
-      const cartMemberId = firstProduct.member_id;
+    if (cartItem) {
+      if (cartItem.product_id === productId) {
+        throw new InvariantError('Produk sudah ada di keranjang');
+      }
+      const cartMemberId = cartItem.product.member_id;
 
-      // jika member_id produk yang ditambahkan tidak sama dengan member id pada item di ketanjang
+      // Periksa apakah `member_id` produk yang ingin ditambahkan sesuai dengan `cartMemberId`
       if (productMemberId !== cartMemberId) {
         throw new InvariantError('Produk yang ditambahkan harus berasal dari penjual yang sama. Harap hapus terlebih dahulu produk dalam keranjang');
       }
@@ -51,7 +50,10 @@ class CartsService {
 
     const result = await this._prisma.cartItem.create({
       data: {
-        id, customer_id: customerId, product_id: productId, quantity,
+        id,
+        customer_id: customerId,
+        product_id: productId,
+        quantity,
       },
     });
 
@@ -61,7 +63,7 @@ class CartsService {
     return result.id;
   }
 
-  // -- MENDAPATKAN PRODUK DALAM CART
+  // -- MENDAPATKAN PRODUK DALAM CART --
   async getCarts(customerId) {
     const result = await this._prisma.cartItem.findMany({
       where: {

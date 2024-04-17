@@ -93,7 +93,7 @@ model PaymentMethod {
 model DeliveryMethod {
   id          String      @id @db.VarChar(255)
   method      String      @db.VarChar(255)
-  description String      @db.VarChar(255)
+  description String?     @db.VarChar(255)
   member      Member      @relation(fields: [member_id], references: [id], onDelete: Cascade)  
   member_id   String      @db.VarChar(255)
 
@@ -143,7 +143,7 @@ model Order {
   delivery_method_id  String          @db.VarChar(255)
   delivery_method     DeliveryMethod  @relation(fields: [delivery_method_id], references: [id])
   note                String?         @db.Text
-  status              OrderStatus
+  status              OrderStatus     @default(pending)
   created_at          DateTime        @default(now())
   updated_at          DateTime        @updatedAt
 
@@ -151,7 +151,7 @@ model Order {
 }
 
 model OrderProduct {
-  id            String      @id @db.VarChar(255)
+  id            String      @id @default(uuid())
   order_id      String      @db.VarChar(255)
   order         Order       @relation(fields: [order_id], references: [id])
   product_id    String      @db.VarChar(255)
