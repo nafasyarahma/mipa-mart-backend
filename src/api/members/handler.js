@@ -9,6 +9,8 @@ class MembersHandler {
     autoBind(this);
   }
 
+  /* ================================ MEMBER SCOPE ================================ */
+
   async postMemberHandler(request, h) {
     this._validator.validateMemberPayload(request.payload);
     const {
@@ -33,6 +35,36 @@ class MembersHandler {
     return response;
   }
 
+  async getMemberProfileHandler(request) {
+    const { id: credentialId } = request.auth.credentials;
+
+    const member = await this._service.getMemberById(credentialId);
+
+    return {
+      status: 'success',
+      data: {
+        member,
+      },
+    };
+  }
+
+  async putMemberProfileHandler(request) {
+    this._validator.validatePutMemberPayload(request.payload);
+    const { id: credentialId } = request.auth.credentials;
+
+    const member = await this._service.editMemberById(credentialId, request.payload);
+
+    return {
+      status: 'success',
+      message: 'Data Member berhasil diperbarui',
+      data: {
+        member,
+      },
+    };
+  }
+
+  /* ================================ ADMIN SCOPE ================================ */
+
   async getAllMembersHandler() {
     const members = await this._service.getAllMembers();
 
@@ -48,6 +80,19 @@ class MembersHandler {
     const { id } = request.params;
 
     const member = await this._service.getMemberById(id);
+
+    return {
+      status: 'success',
+      data: {
+        member,
+      },
+    };
+  }
+
+  async getMemberWithProductsHandler(request) {
+    const { id } = request.params;
+
+    const member = await this._service.getMemberWithProducts(id);
 
     return {
       status: 'success',

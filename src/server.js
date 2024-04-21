@@ -40,7 +40,7 @@ const deliveryMethods = require('./api/deliveryMethods');
 const DeliveryMethodsService = require('./services/mysql/DeliveryMethodsServices');
 const DeliveryMethodsValidator = require('./validator/deliveryMethods/index');
 
-// customer
+// customers
 const customers = require('./api/customers');
 const CustomersService = require('./services/mysql/CustomersServices');
 const CustomersValidator = require('./validator/customers/index');
@@ -50,6 +50,7 @@ const carts = require('./api/carts');
 const CartsService = require('./services/mysql/CartsServices');
 const CartsValidator = require('./validator/carts/index');
 
+// orders
 const orders = require('./api/orders');
 const OrdersService = require('./services/mysql/OrdersService');
 const OrdersValidator = require('./validator/orders/index');
@@ -165,6 +166,7 @@ const init = async () => {
       options: {
         service: ordersService,
         paymentMethodsService,
+        deliveryMethodsService,
         validator: OrdersValidator,
       },
     },

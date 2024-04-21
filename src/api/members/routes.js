@@ -1,7 +1,7 @@
 const path = require('path');
 
 const routes = (handler) => [
-  // member
+  /* =============== MEMBER =============== */
   {
     method: 'POST',
     path: '/member/register',
@@ -14,8 +14,24 @@ const routes = (handler) => [
       },
     },
   },
+  {
+    method: 'GET',
+    path: '/member/profile',
+    handler: handler.getMemberProfileHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
+  {
+    method: 'PUT',
+    path: '/member/profile',
+    handler: handler.putMemberProfileHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
 
-  // admin
+  /* ================ ADMIN ================ */
   {
     method: 'GET',
     path: '/admin/members',
@@ -49,6 +65,11 @@ const routes = (handler) => [
         path: path.resolve(__dirname, '../../../static/upload/images/ktm'),
       },
     },
+  },
+  {
+    method: 'GET',
+    path: '/members/{id}',
+    handler: handler.getMemberWithProductsHandler,
   },
 ];
 

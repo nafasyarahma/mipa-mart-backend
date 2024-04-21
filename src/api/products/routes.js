@@ -1,7 +1,6 @@
 const path = require('path');
 
 const routes = (handler) => [
-  // -- MEMBER --
   {
     method: 'POST',
     path: '/member/products',
@@ -19,15 +18,7 @@ const routes = (handler) => [
   {
     method: 'GET',
     path: '/member/products',
-    handler: handler.getProductsHandler,
-    options: {
-      auth: 'mipamart_jwt',
-    },
-  },
-  {
-    method: 'GET',
-    path: '/member/products/{id}',
-    handler: handler.getProductByIdHandler,
+    handler: handler.getMemberProductsHandler,
     options: {
       auth: 'mipamart_jwt',
     },
@@ -62,6 +53,23 @@ const routes = (handler) => [
         path: path.resolve(__dirname, '../../../static/upload/images/product'),
       },
     },
+  },
+
+  /* ================= KATALOG ================= */
+  {
+    method: 'GET',
+    path: '/products',
+    handler: handler.getAllProductsHandler,
+  },
+  {
+    method: 'GET',
+    path: '/products/search',
+    handler: handler.getAllProductsHandler,
+  },
+  {
+    method: 'GET',
+    path: '/products/{id}',
+    handler: handler.getProductByIdHandler,
   },
 ];
 

@@ -11,4 +11,8 @@ const OrderStatusPayloadSchema = Joi.object({
   status: Joi.string().valid('pending', 'accepted', 'rejected', 'completed'),
 });
 
-module.exports = { OrderPayloadSchema, OrderStatusPayloadSchema };
+const PaymentImageHeadersSchema = Joi.object({
+  'content-type': Joi.string().valid('image/apng', 'image/jpg', 'image/jpeg', 'image/png', 'image/webp').required(),
+}).unknown();
+
+module.exports = { OrderPayloadSchema, OrderStatusPayloadSchema, PaymentImageHeadersSchema };

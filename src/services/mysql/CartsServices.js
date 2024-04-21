@@ -13,7 +13,7 @@ class CartsService {
   async addItemToCart({ customerId, productId, quantity }) {
     const id = `cartitem-${nanoid(16)}`;
 
-    // memeriksa apakah produk yang ditambahkan ada di db
+    // periksa apakah produk yang ditambahkan ada di db
     const product = await this._prisma.product.findFirst({
       where: {
         id: productId,
@@ -23,6 +23,7 @@ class CartsService {
     if (!product) {
       throw new NotFoundError('Produk tidak ditemukan');
     }
+
     // dapatkan member_id dari product yang ditambahkan
     const productMemberId = product.member_id;
 
@@ -36,12 +37,13 @@ class CartsService {
       },
     });
 
+    // jika cart tidak kosong
     if (cartItem) {
       if (cartItem.product_id === productId) {
         throw new InvariantError('Produk sudah ada di keranjang');
       }
-      const cartMemberId = cartItem.product.member_id;
 
+      const cartMemberId = cartItem.product.member_id;
       // Periksa apakah `member_id` produk yang ingin ditambahkan sesuai dengan `cartMemberId`
       if (productMemberId !== cartMemberId) {
         throw new InvariantError('Produk yang ditambahkan harus berasal dari penjual yang sama. Harap hapus terlebih dahulu produk dalam keranjang');

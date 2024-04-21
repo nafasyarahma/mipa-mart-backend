@@ -8,6 +8,8 @@ class CustomersHandler {
     autoBind(this);
   }
 
+  /* ================================ CUSTOMER SCOPE ================================ */
+
   async postCustomerHandler(request, h) {
     this._validator.validateCustomerPayload(request.payload);
 
@@ -23,6 +25,36 @@ class CustomersHandler {
     response.code(201);
     return response;
   }
+
+  async getCustomerProfileHandler(request) {
+    const { id: credentialId } = request.auth.credentials;
+
+    const customer = await this._service.getCustomerById(credentialId);
+
+    return {
+      status: 'success',
+      data: {
+        customer,
+      },
+    };
+  }
+
+  async putCustomerProfileHandler(request) {
+    this._validator.validateCustomerPayload(request.payload);
+    const { id: credentialId } = request.auth.credentials;
+
+    const customer = await this._service.editCustomerById(credentialId, request.payload);
+
+    return {
+      status: 'success',
+      message: 'Data Member berhasil diperbarui',
+      data: {
+        customer,
+      },
+    };
+  }
+
+  /* ================================ ADMIN SCOPE ================================ */
 
   async getAllCustomersHandler() {
     const customers = await this._service.getAllCustomers();

@@ -9,11 +9,10 @@ const AuthorizationError = require('../../exceptions/AuthorizationError');
 class MembersService {
   constructor(storageService) {
     this._prisma = new PrismaClient();
-
     this._storageService = storageService;
   }
 
-  // -- MENAMBAHKAN MEMBER --
+  // -- MENAMBAHKAN MEMBER / REGISTRASI --
   async addMember({
     username, email, password, name, npm, major, ktmUrl, whatsappNumber, address, bio,
   }) {
@@ -45,16 +44,7 @@ class MembersService {
 
   // -- MENDAPATKAN SEMUA MEMBER --
   async getAllMembers() {
-    const result = await this._prisma.member.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        no_wa: true,
-        ktm_image: true,
-        verif_status: true,
-      },
-    });
+    const result = await this._prisma.member.findMany();
     return result;
   }
 
@@ -72,9 +62,34 @@ class MembersService {
     return result;
   }
 
+  // -- MENDAPATKAN DETAIL MEMBER BESERTA PRODUK--
+  async getMemberWithProducts(id) {
+    await this.checkMemberId(id);
+    const memberData = await this._prisma.member.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        Product: true,
+      },
+    });
+    if (!memberData) {
+      throw new NotFoundError('Gagal mendapatkan data');
+    }
+
+    const selectedMemberData = {
+      name: memberData.name,
+      no_wa: memberData.no_wa,
+      address: memberData.address,
+      bio: memberData.bio,
+      products: memberData.Product,
+    };
+    return selectedMemberData;
+  }
+
   // -- MENGEDIT DETAIL MEMBER --
   async editMemberById(id, {
-    username, email, password, name, major, whatsappNumber, address,
+    username, email, password, name, whatsappNumber, address, bio,
   }) {
     await this.checkMemberId(id);
 
@@ -93,9 +108,9 @@ class MembersService {
       username,
       email,
       name,
-      major,
       no_wa: whatsappNumber,
       address,
+      bio,
     };
 
     // jika username berbeda (diedit)
@@ -156,28 +171,21 @@ class MembersService {
     });
   }
 
-  // Tambah image
-  async addKTMImage(ktmUrl) {
-    const result = await this._prisma.member.create({
-      data: {
-        ktm_image: ktmUrl,
-      },
-    });
-
-    if (!result) {
-      throw new InvariantError('Gagal mengupload gambar');
-    }
-  }
-
   // Memverifikasi username memastikan belum digunakan
   async verifyNewUsername(username) {
-    const result = await this._prisma.member.findUnique({
+    const memberUsername = await this._prisma.member.findUnique({
       where: {
         username,
       },
     });
 
-    if (result) {
+    const customerUsername = await this._prisma.customer.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (customerUsername || memberUsername) {
       throw new InvariantError('Username sudah digunakan. Harap ganti username Anda!');
     }
   }

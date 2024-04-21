@@ -85,6 +85,16 @@ class OrdersService {
     return result;
   }
 
+  async getMemberOrderList(memberId) {
+    const result = await this._prisma.order.findMany({
+      where: {
+        member_id: memberId,
+      },
+    });
+
+    return result;
+  }
+
   async getOrderById(id) {
     const result = await this._prisma.order.findFirst({
       where: {
@@ -143,6 +153,24 @@ class OrdersService {
     const orderMember = result.member_id;
 
     if (orderMember !== memberId) {
+      throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
+    }
+  }
+
+  async verifyOrderCustomer(id, customerId) {
+    const result = await this._prisma.order.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!result) {
+      throw new NotFoundError('Order tidak ditemukan');
+    }
+
+    const orderCustomer = result.customer_id;
+
+    if (orderCustomer !== customerId) {
       throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
     }
   }

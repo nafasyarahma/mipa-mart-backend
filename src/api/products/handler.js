@@ -41,9 +41,20 @@ class ProductsHandler {
     return response;
   }
 
-  async getProductsHandler(request) {
+  async getMemberProductsHandler(request) {
     const { id: credentialId } = request.auth.credentials;
-    const products = await this._service.getProducts(credentialId);
+    const products = await this._service.getMemberProducts(credentialId);
+
+    return {
+      status: 'success',
+      data: {
+        products,
+      },
+    };
+  }
+
+  async getAllProductsHandler(request) {
+    const products = await this._service.getAllProducts(request.query);
 
     return {
       status: 'success',
@@ -55,9 +66,7 @@ class ProductsHandler {
 
   async getProductByIdHandler(request) {
     const { id } = request.params;
-    const { id: credentialId } = request.auth.credentials;
 
-    await this._service.verifyProductMember(id, credentialId);
     const product = await this._service.getProductById(id);
 
     return {

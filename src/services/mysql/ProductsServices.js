@@ -44,11 +44,25 @@ class ProductsService {
   }
 
   // -- MENDAPATKAN PRODUK YANG DIMILIKI MEMBER --
-  async getProducts(memberId) {
+  async getMemberProducts(memberId) {
     const result = await this._prisma.product.findMany({
       where: {
         member_id: memberId,
       },
+    });
+    return result;
+  }
+
+  // -- MENDAPATKAN SEMUA PRODUK --
+  async getAllProducts({ name }) {
+    const whereClause = {};
+    if (name) {
+      whereClause.name = {
+        contains: name, // Filter berdasarkan nama (menggunakan pencarian "contains")
+      };
+    }
+    const result = await this._prisma.product.findMany({
+      where: whereClause,
     });
     return result;
   }

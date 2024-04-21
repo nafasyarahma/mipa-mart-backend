@@ -20,7 +20,13 @@ class CustomersService {
 
     const result = await this._prisma.customer.create({
       data: {
-        id, username, email, password: hashedPassword, name, no_wa: whatsappNumber, address,
+        id,
+        username,
+        email,
+        password: hashedPassword,
+        name,
+        no_wa: whatsappNumber,
+        address,
       },
     });
 
@@ -126,16 +132,14 @@ class CustomersService {
         username,
       },
     });
-    if (customerUsername) {
-      throw new InvariantError('Username sudah digunakan. Harap ganti username Anda!');
-    }
 
     const memberUsername = await this._prisma.member.findUnique({
       where: {
         username,
       },
     });
-    if (memberUsername) {
+
+    if (customerUsername || memberUsername) {
       throw new InvariantError('Username sudah digunakan. Harap ganti username Anda!');
     }
   }

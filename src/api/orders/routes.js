@@ -26,15 +26,7 @@ const routes = (handler) => [
   {
     method: 'GET',
     path: '/customer/orders/{id}',
-    handler: handler.getOrderDetailHandler,
-    options: {
-      auth: 'mipamart_jwt',
-    },
-  },
-  {
-    method: 'PUT',
-    path: '/customer/orders/{id}/status',
-    handler: handler.changeOrderStatusHandler,
+    handler: handler.getCustomerOrderDetailHandler,
     options: {
       auth: 'mipamart_jwt',
     },
@@ -46,6 +38,31 @@ const routes = (handler) => [
       directory: {
         path: path.resolve(__dirname, '../../../static/upload/images/payment'),
       },
+    },
+  },
+  /* ================= MEMBER ================= */
+  {
+    method: 'GET',
+    path: '/member/orders',
+    handler: handler.getMemberOrderListHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
+  {
+    method: 'PUT',
+    path: '/member/orders/{id}/status',
+    handler: handler.changeOrderStatusHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
+  {
+    method: 'GET',
+    path: '/member/orders/{id}',
+    handler: handler.getMemberOrderDetailHandler,
+    options: {
+      auth: 'mipamart_jwt',
     },
   },
 ];
