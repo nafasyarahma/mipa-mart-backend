@@ -1,9 +1,18 @@
 const autoBind = require('auto-bind');
+const AuthenticationError = require('../../exceptions/AuthenticationError');
 
 class AuthenticationsHandler {
-  constructor(authenticationsService, membersService, customersService, tokenManager, validator) {
+  constructor(
+    authenticationsService,
+    membersService,
+    customersService,
+    adminService,
+    tokenManager,
+    validator,
+  ) {
     this._authenticationsService = authenticationsService;
     this._membersService = membersService;
+    this._adminService = adminService;
     this._customersService = customersService;
     this._tokenManager = tokenManager;
     this._validator = validator;
@@ -15,16 +24,44 @@ class AuthenticationsHandler {
   async postAuthenticationHandler(request, h) {
     this._validator.validatePostAuthenticationPayload(request.payload);
 
-    const { username, password, role } = request.payload;
+    const { username, password } = request.payload;
 
     let id;
+    let role;
 
-    if (role === 'member') {
+    // check admin
+    id = await this._adminService.verifyAdminCredential(username, password);
+    if (id) {
+      role = 'admin';
+    }
+
+    // check member
+    if (!id) {
       await this._membersService.checkVerificationStatus(username);
       id = await this._membersService.verifyMemberCredential(username, password);
-    } else if (role === 'customer') {
-      id = await this._customersService.verifyCustomerCredential(username, password);
+      if (id) {
+        role = 'member';
+      }
     }
+
+    // check customer
+    if (!id) {
+      id = await this._customersService.verifyCustomerCredential(username, password);
+      if (id) {
+        role = 'customer';
+      }
+    }
+
+    if (!id) {
+      throw new AuthenticationError('Kredensial yang anda berikan salah');
+    }
+
+    // if (role === 'member') {
+    //   await this._membersService.checkVerificationStatus(username);
+    //   id = await this._membersService.verifyMemberCredential(username, password);
+    // } else if (role === 'customer') {
+    //   id = await this._customersService.verifyCustomerCredential(username, password);
+    // }
 
     const accessToken = this._tokenManager.generateAccessToken({ id, role });
     const refreshToken = this._tokenManager.generateRefreshToken({ id, role });

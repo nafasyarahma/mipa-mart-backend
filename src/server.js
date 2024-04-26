@@ -55,6 +55,9 @@ const orders = require('./api/orders');
 const OrdersService = require('./services/mysql/OrdersService');
 const OrdersValidator = require('./validator/orders/index');
 
+// admin
+const AdminService = require('./services/mysql/AdminServices');
+
 const init = async () => {
   const categoriesService = new CategoriesService();
   const membersService = new MembersService();
@@ -68,6 +71,7 @@ const init = async () => {
   const cartsService = new CartsService();
   const paymentImagesStorageService = new StorageService(path.resolve(__dirname, '../static/upload/images/payment'));
   const ordersService = new OrdersService(paymentImagesStorageService);
+  const adminService = new AdminService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -96,6 +100,7 @@ const init = async () => {
       isValid: true,
       credentials: {
         id: artifacts.decoded.payload.id,
+        role: artifacts.decoded.payload.role,
       },
     }),
   });
@@ -105,6 +110,7 @@ const init = async () => {
       plugin: categories,
       options: {
         service: categoriesService,
+        adminService,
         validator: CategoriesValidator,
       },
     },
@@ -120,6 +126,7 @@ const init = async () => {
       options: {
         service: membersService,
         storageService,
+        adminService,
         validator: MembersValidator,
       },
     },
@@ -143,6 +150,7 @@ const init = async () => {
         authenticationsService,
         membersService,
         customersService,
+        adminService,
         tokenManager: TokenManager,
         validator: AuthentcationsValidator,
       },
@@ -151,6 +159,7 @@ const init = async () => {
       plugin: customers,
       options: {
         service: customersService,
+        adminService,
         validator: CustomersValidator,
       },
     },

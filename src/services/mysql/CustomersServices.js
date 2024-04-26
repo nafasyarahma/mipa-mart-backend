@@ -168,18 +168,16 @@ class CustomersService {
       },
     });
 
-    if (!result) {
-      throw new AuthenticationError('Username atau password yang Anda masukkan salah');
+    if (result) {
+      const { id, password: hashedPassword } = result;
+      const match = await bcrypt.compare(password, hashedPassword);
+
+      if (!match) {
+        throw new AuthenticationError('Username atau password yang Anda masukkan salah');
+      }
+      return id;
     }
-
-    const { id, password: hashedPassword } = result;
-    const match = await bcrypt.compare(password, hashedPassword);
-
-    if (!match) {
-      throw new AuthenticationError('Username atau password yang Anda masukkan salah');
-    }
-
-    return id;
+    return null;
   }
 }
 

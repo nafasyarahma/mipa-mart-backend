@@ -8,6 +8,7 @@ module.exports = {
     authenticationsService,
     membersService,
     customersService,
+    adminService,
     tokenManager,
     validator,
   }) => {
@@ -15,6 +16,7 @@ module.exports = {
       authenticationsService,
       membersService,
       customersService,
+      adminService,
       tokenManager,
       validator,
     );

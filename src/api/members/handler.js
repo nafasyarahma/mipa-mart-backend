@@ -1,8 +1,9 @@
 const autoBind = require('auto-bind');
 
 class MembersHandler {
-  constructor(service, storageService, validator) {
+  constructor(service, storageService, adminService, validator) {
     this._service = service;
+    this._adminService = adminService;
     this._storageService = storageService;
     this._validator = validator;
 
@@ -65,7 +66,10 @@ class MembersHandler {
 
   /* ================================ ADMIN SCOPE ================================ */
 
-  async getAllMembersHandler() {
+  async getAllMembersHandler(request) {
+    const { role: credentialRole } = request.auth.credentials;
+    await this._adminService.verifyRoleAdminScope(credentialRole);
+
     const members = await this._service.getAllMembers();
 
     return {
@@ -77,6 +81,8 @@ class MembersHandler {
   }
 
   async getMemberByIdHandler(request) {
+    const { role: credentialRole } = request.auth.credentials;
+    await this._adminService.verifyRoleAdminScope(credentialRole);
     const { id } = request.params;
 
     const member = await this._service.getMemberById(id);
@@ -89,21 +95,12 @@ class MembersHandler {
     };
   }
 
-  async getMemberWithProductsHandler(request) {
-    const { id } = request.params;
-
-    const member = await this._service.getMemberWithProducts(id);
-
-    return {
-      status: 'success',
-      data: {
-        member,
-      },
-    };
-  }
-
   async putMemberByIdHandler(request) {
     this._validator.validateMemberPayload(request.payload);
+
+    const { role: credentialRole } = request.auth.credentials;
+    await this._adminService.verifyRoleAdminScope(credentialRole);
+
     const { id } = request.params;
 
     const member = await this._service.editMemberById(id, request.payload);
@@ -119,6 +116,10 @@ class MembersHandler {
 
   async putMemberStatusByIdHandler(request) {
     this._validator.validateMemberStatusPayload(request.payload);
+
+    const { role: credentialRole } = request.auth.credentials;
+    await this._adminService.verifyRoleAdminScope(credentialRole);
+
     const { id } = request.params;
 
     await this._service.editMemberStatusById(id, request.payload);
@@ -130,6 +131,9 @@ class MembersHandler {
   }
 
   async deleteMemberByIdHandler(request) {
+    const { role: credentialRole } = request.auth.credentials;
+    await this._adminService.verifyRoleAdminScope(credentialRole);
+
     const { id } = request.params;
 
     await this._service.deleteMemberById(id);
@@ -137,6 +141,21 @@ class MembersHandler {
     return {
       status: 'success',
       message: 'Member berhasil dihapus',
+    };
+  }
+
+  /* ================================ GUEST SCOPE ================================ */
+
+  async getMemberWithProductsHandler(request) {
+    const { id } = request.params;
+
+    const member = await this._service.getMemberWithProducts(id);
+
+    return {
+      status: 'success',
+      data: {
+        member,
+      },
     };
   }
 }

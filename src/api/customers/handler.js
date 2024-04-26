@@ -1,8 +1,9 @@
 const autoBind = require('auto-bind');
 
 class CustomersHandler {
-  constructor(service, validator) {
+  constructor(service, adminService, validator) {
     this._service = service;
+    this._adminService = adminService;
     this._validator = validator;
 
     autoBind(this);
@@ -56,7 +57,10 @@ class CustomersHandler {
 
   /* ================================ ADMIN SCOPE ================================ */
 
-  async getAllCustomersHandler() {
+  async getAllCustomersHandler(request) {
+    const { role: credentialRole } = request.auth.credentials;
+    await this._adminService.verifyRoleAdminScope(credentialRole);
+
     const customers = await this._service.getAllCustomers();
 
     return {
@@ -68,8 +72,10 @@ class CustomersHandler {
   }
 
   async getCustomerByIdHandler(request) {
-    const { id } = request.params;
+    const { role: credentialRole } = request.auth.credentials;
+    await this._adminService.verifyRoleAdminScope(credentialRole);
 
+    const { id } = request.params;
     const customer = await this._service.getCustomerById(id);
 
     return {
@@ -82,6 +88,10 @@ class CustomersHandler {
 
   async putCustomerByIdHandler(request) {
     this._validator.validateCustomerPayload(request.payload);
+
+    const { role: credentialRole } = request.auth.credentials;
+    await this._adminService.verifyRoleAdminScope(credentialRole);
+
     const { id } = request.params;
 
     const customer = await this._service.editCustomerById(id, request.payload);
@@ -96,6 +106,9 @@ class CustomersHandler {
   }
 
   async deleteCustomerByIdHandler(request) {
+    const { role: credentialRole } = request.auth.credentials;
+    await this._adminService.verifyRoleAdminScope(credentialRole);
+
     const { id } = request.params;
 
     await this._service.deleteCustomerById(id);

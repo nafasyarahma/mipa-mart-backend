@@ -1,8 +1,9 @@
 const autoBind = require('auto-bind');
 
 class CategoriesHandler {
-  constructor(service, validator) {
+  constructor(service, adminService, validator) {
     this._service = service;
+    this._adminService = adminService;
     this._validator = validator;
 
     autoBind(this);
@@ -10,6 +11,10 @@ class CategoriesHandler {
 
   async postCategoryHandler(request, h) {
     this._validator.validateCategoryPayload(request.payload);
+
+    const { role: credentialRole } = request.auth.credentials;
+    await this._adminService.verifyRoleAdminScope(credentialRole);
+
     const { name, description } = request.payload;
     const categoryId = await this._service.addCategory({ name, description });
 
@@ -25,7 +30,10 @@ class CategoriesHandler {
     return response;
   }
 
-  async getAllCategoryHandler() {
+  async getAllCategoryHandler(request) {
+    const { role: credentialRole } = request.auth.credentials;
+    await this._adminService.verifyRoleAdminScope(credentialRole);
+
     const categories = await this._service.getAllCategories();
 
     return {
@@ -38,6 +46,10 @@ class CategoriesHandler {
 
   async putCategoryByIdHandler(request) {
     this._validator.validateCategoryPayload(request.payload);
+
+    const { role: credentialRole } = request.auth.credentials;
+    await this._adminService.verifyRoleAdminScope(credentialRole);
+
     const { id } = request.params;
 
     const category = await this._service.editCategoryById(id, request.payload);
@@ -52,6 +64,9 @@ class CategoriesHandler {
   }
 
   async deleteCategoryByIdHandler(request) {
+    const { role: credentialRole } = request.auth.credentials;
+    await this._adminService.verifyRoleAdminScope(credentialRole);
+
     const { id } = request.params;
     await this._service.deleteCategoryById(id);
 

@@ -27,21 +27,33 @@ const routes = (handler) => [
     method: 'GET',
     path: '/admin/customers',
     handler: handler.getAllCustomersHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
   },
   {
     method: 'GET',
     path: '/admin/customers/{id}',
     handler: handler.getCustomerByIdHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
   },
   {
     method: 'PUT',
     path: '/admin/customers/{id}',
     handler: handler.putCustomerByIdHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
   },
   {
     method: 'DELETE',
     path: '/admin/customers/{id}',
     handler: handler.deleteCustomerByIdHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
   },
 ];
 

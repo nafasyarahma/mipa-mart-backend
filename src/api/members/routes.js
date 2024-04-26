@@ -36,26 +36,41 @@ const routes = (handler) => [
     method: 'GET',
     path: '/admin/members',
     handler: handler.getAllMembersHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
   },
   {
     method: 'GET',
     path: '/admin/members/{id}',
     handler: handler.getMemberByIdHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
   },
   {
     method: 'PUT',
     path: '/admin/members/{id}',
     handler: handler.putMemberByIdHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
   },
   {
     method: 'PUT',
     path: '/admin/members/{id}/status',
     handler: handler.putMemberStatusByIdHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
   },
   {
     method: 'DELETE',
     path: '/admin/members/{id}',
     handler: handler.deleteMemberByIdHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
   },
   {
     method: 'GET',
@@ -66,6 +81,8 @@ const routes = (handler) => [
       },
     },
   },
+
+  /* ================ GUEST ================ */
   {
     method: 'GET',
     path: '/members/{id}',

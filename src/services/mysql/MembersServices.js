@@ -213,18 +213,16 @@ class MembersService {
       },
     });
 
-    if (!result) {
-      throw new AuthenticationError('Username atau password yang Anda masukkan salah');
+    if (result) {
+      const { id, password: hashedPassword } = result;
+      const match = await bcrypt.compare(password, hashedPassword);
+
+      if (!match) {
+        throw new AuthenticationError('Username atau password yang Anda masukkan salah');
+      }
+      return id;
     }
-
-    const { id, password: hashedPassword } = result;
-    const match = await bcrypt.compare(password, hashedPassword);
-
-    if (!match) {
-      throw new AuthenticationError('Username atau password yang Anda masukkan salah');
-    }
-
-    return id;
+    return null;
   }
 
   // Mengecek status verifikasi member
@@ -235,15 +233,14 @@ class MembersService {
       },
     });
 
-    if (!member) {
-      throw new NotFoundError('Username member tidak ditemukan');
+    if (member) {
+      if (member.verif_status === 'pending') {
+        throw new AuthorizationError('Akun anda sedang dalam proses verifikasi. Mohon tunggu hingga status disetujui');
+      } else if (member.verif_status === 'rejected') {
+        throw new AuthorizationError('Permintaan registrasi akun Anda ditolak. Silahkan registrasi ulang dengan data yang benar atau hubungi Admin');
+      }
     }
-
-    if (member.verif_status === 'pending') {
-      throw new AuthorizationError('Akun anda sedang dalam proses verifikasi. Mohon tunggu hingga status disetujui');
-    } else if (member.verif_status === 'rejected') {
-      throw new AuthorizationError('Permintaan registrasi akun Anda ditolak. Silahkan registrasi ulang dengan data yang benar atau hubungi Admin');
-    }
+    return null;
   }
 }
 
