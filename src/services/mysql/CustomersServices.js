@@ -16,6 +16,8 @@ class CustomersService {
     username, email, password, name, whatsappNumber, address,
   }) {
     await this.verifyNewUsername(username);
+    await this.verifyNewEmail(email);
+
     const id = `customer-${nanoid(16)}`;
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -32,7 +34,7 @@ class CustomersService {
     });
 
     if (result.id) {
-      this._emailService.sendCustomerEmailVerification(id, email);
+      this._emailService.sendEmailVerification(id, email);
       return result.id;
     }
     throw new InvariantError('Customer gagal ditambahkan');
@@ -87,7 +89,8 @@ class CustomersService {
 
     // jika email berbeda (diedit)
     if (email !== currentData.email) {
-      await this._emailService.sendCustomerEmailVerification(id, email);
+      await this.verifyNewEmail(email);
+      await this._emailService.sendEmailVerification(id, email);
       newData.email_verified = false;
     }
 
@@ -144,6 +147,17 @@ class CustomersService {
     }
   }
 
+  async verifyNewEmail(email) {
+    const customerEmail = await this._prisma.customer.findUnique({
+      where: {
+        email,
+      },
+    });
+    if (customerEmail) {
+      throw new InvariantError('Email sudah digunakan. Harap ganti email Anda');
+    }
+  }
+
   // Mengecek id di db
   async checkCustomerId(id) {
     const customerId = await this._prisma.customer.findUnique({
@@ -153,6 +167,19 @@ class CustomersService {
     });
     if (!customerId || id === null) {
       throw new NotFoundError('Id customer tidak ditemukan');
+    }
+  }
+
+  // Mengecek email di db
+  async checkCustomerEmail(email) {
+    const customerEmail = await this._prisma.customer.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!customerEmail) {
+      throw new NotFoundError('Email Tidak Ditemukan');
     }
   }
 
@@ -180,6 +207,7 @@ class CustomersService {
     return null;
   }
 
+  // Mengubah status verifikasi email menjadi true
   async changeEmailVerifStatus(id) {
     await this.checkCustomerId(id);
     const result = await this._prisma.customer.update({
@@ -192,6 +220,26 @@ class CustomersService {
     });
     if (!result) {
       throw new InvariantError('Gagal mengubah status verifikasi email');
+    }
+  }
+
+  async resetCustomerPassword(email, password, confirmPassword) {
+    if (password !== confirmPassword) {
+      throw new InvariantError('Password dan confirm password tidak cocok');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = await this._prisma.customer.update({
+      where: {
+        email,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+    if (!result) {
+      throw new InvariantError('Gagal memperbarui password');
     }
   }
 }

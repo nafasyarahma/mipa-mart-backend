@@ -15,15 +15,16 @@ class EmailService {
     });
   }
 
-  async sendCustomerEmailVerification(id, customerEmail) {
+  async sendEmailVerification(id, email) {
     try {
-      const token = jwt.token.generate({ id, email: customerEmail }, process.env.EMAIL_KEY, { expiresIn: '1h' });
+      const role = id.split('-')[0];
+      const token = jwt.token.generate({ id, email }, process.env.EMAIL_KEY, { expiresIn: '1h' });
 
       const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: customerEmail,
+        to: email,
         subject: 'Email Verification',
-        html: `<p>Please click <a href="http://${process.env.HOST}:${process.env.PORT}/customer/verify-email/${token}">here</a> to verify your email.</p>`,
+        html: `<p>Please click <a href="http://${process.env.HOST}:${process.env.PORT}/${role}/verify-email/${token}">here</a> to verify your email.</p>`,
       };
 
       await this._transporter.sendMail(mailOptions);
@@ -32,15 +33,35 @@ class EmailService {
     }
   }
 
-  async sendMemberEmailVerification(id, memberEmail) {
+  // async sendMemberEmailVerification(id, memberEmail) {
+  //   try {
+  //     const token = jwt.token.generate({ id, email: memberEmail }, process.env.EMAIL_KEY,
+  // { expiresIn: '1h' });
+
+  //     const mailOptions = {
+  //       from: process.env.EMAIL_USER,
+  //       to: memberEmail,
+  //       subject: 'Email Verification',
+  //       html: `<p>Please click <a href="http://${process.env.HOST}:${process.env.PORT}/member/verify-email/${token}">here</a> to verify your email.</p>`,
+  //     };
+
+  //     await this._transporter.sendMail(mailOptions);
+  //   } catch (error) {
+  //     throw new Error(error);
+  //   }
+  // }
+
+  async sendResetPasswordEmail(id, email) {
     try {
-      const token = jwt.token.generate({ id, email: memberEmail }, process.env.EMAIL_KEY, { expiresIn: '1h' });
+      const role = id.split('-')[0];
+
+      const token = jwt.token.generate({ id, email }, process.env.EMAIL_KEY, { expiresIn: '1h' });
 
       const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: memberEmail,
-        subject: 'Email Verification',
-        html: `<p>Please click <a href="http://${process.env.HOST}:${process.env.PORT}/member/verify-email/${token}">here</a> to verify your email.</p>`,
+        to: email,
+        subject: 'Reset Password',
+        html: `<p>Please click <a href="http://${process.env.HOST}:${process.env.PORT}/${role}/reset-email/${token}">here</a> to change your password</p>`,
       };
 
       await this._transporter.sendMail(mailOptions);
@@ -53,11 +74,10 @@ class EmailService {
     try {
       const artifacts = jwt.token.decode(token);
       // mengecek signature token sesuai/tidak
-      jwt.token.verifySignature(artifacts, process.env.EMAIL_KEY);
-
+      jwt.token.verify(artifacts, process.env.EMAIL_KEY);
       // ambil payload
-      const { id } = artifacts.decoded.payload;
-      return id;
+      const { payload } = artifacts.decoded;
+      return payload;
     } catch (error) {
       throw new Error(error);
     }

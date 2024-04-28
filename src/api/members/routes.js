@@ -30,6 +30,14 @@ const routes = (handler) => [
       auth: 'mipamart_jwt',
     },
   },
+  {
+    method: 'POST',
+    path: '/member/email-verification',
+    handler: handler.postMemberEmailVerification,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
 
   /* ================ ADMIN ================ */
   {
@@ -92,6 +100,16 @@ const routes = (handler) => [
     method: 'GET',
     path: '/member/verify-email/{token}',
     handler: handler.verifyMemberEmailHandler,
+  },
+  {
+    method: 'POST',
+    path: '/member/forgot-password',
+    handler: handler.memberForgotPasswordHandler,
+  },
+  {
+    method: 'POST',
+    path: '/member/reset-email/{token}',
+    handler: handler.resetMemberEmailHandler,
   },
 ];
 

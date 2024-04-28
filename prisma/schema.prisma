@@ -48,7 +48,7 @@ model Product {
 model Member {
   id           String      @id @db.VarChar(255)
   username     String      @unique @db.VarChar(255)
-  email        String      @db.VarChar(255)
+  email        String      @unique @db.VarChar(255)
   email_verified Boolean   @default(false)
   password     String      @db.VarChar(255)
   name         String      @db.VarChar(255)
@@ -106,7 +106,7 @@ model DeliveryMethod {
 model Customer {
   id           String      @id @db.VarChar(255)
   username     String      @unique @db.VarChar(255)
-  email        String      @db.VarChar(255)
+  email        String      @unique @db.VarChar(255)
   email_verified Boolean   @default(false)
   password     String      @db.VarChar(255)
   name         String      @db.VarChar(255)

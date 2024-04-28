@@ -63,8 +63,8 @@ const EmailService = require('./services/message/EmailService');
 const init = async () => {
   const emailService = new EmailService();
   const categoriesService = new CategoriesService();
-  const membersService = new MembersService(emailService);
   const storageService = new StorageService(path.resolve(__dirname, '../static/upload/images/ktm'));
+  const membersService = new MembersService(storageService, emailService);
   const productImagesStorageService = new StorageService(path.resolve(__dirname, '../static/upload/images/product'));
   const productsService = new ProductsService(productImagesStorageService);
   const paymentMethodsService = new PaymentMethodsService();
@@ -130,6 +130,7 @@ const init = async () => {
         service: membersService,
         storageService,
         adminService,
+        emailService,
         validator: MembersValidator,
       },
     },

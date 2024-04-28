@@ -56,6 +56,19 @@ class CustomersHandler {
     };
   }
 
+  async postCustomerEmailVerification(request) {
+    const { id: credentialId } = request.auth.credentials;
+    const customer = await this._service.getCustomerById(credentialId);
+    const { email } = customer.email;
+
+    await this._emailService.sendEmailVerification(credentialId, email);
+
+    return {
+      status: 'success',
+      message: 'Email verifikasi berhasil dikirimkan',
+    };
+  }
+
   /* ================================ ADMIN SCOPE ================================ */
 
   async getAllCustomersHandler(request) {
@@ -125,12 +138,43 @@ class CustomersHandler {
   async verifyCustomerEmailHandler(request) {
     const { token } = request.params;
 
-    const id = this._emailService.verifyEmail(token);
+    const jwtPayload = this._emailService.verifyEmail(token);
+    const { id } = jwtPayload;
     await this._service.changeEmailVerifStatus(id);
 
     return {
       status: 'success',
       message: 'Email berhasil diverifikasi',
+    };
+  }
+
+  async customerForgotPasswordHandler(request) {
+    const { email } = request.payload;
+
+    const customerData = await this._service.checkCustomerEmail(email);
+    const checkedEmail = customerData.email;
+    const { id } = customerData.id;
+
+    await this._emailService.sendResetPasswordEmail(id, checkedEmail);
+
+    return {
+      status: 'success',
+      message: 'Berhasil mengirimkan email. Periksa kotak masuk untuk mendapatkan link reset password',
+    };
+  }
+
+  async resetCustomerPasswordHandler(request) {
+    const { token } = request.params;
+    const { password, confirmPassword } = request.payload;
+
+    const jwtPayload = this._emailService.verifyEmail(token);
+    const { email } = jwtPayload;
+
+    await this._service.resetCustomerPassword(email, password, confirmPassword);
+
+    return {
+      status: 'success',
+      message: 'Berhasil memperbarui password',
     };
   }
 }

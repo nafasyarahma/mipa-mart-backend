@@ -1,10 +1,11 @@
 const autoBind = require('auto-bind');
 
 class MembersHandler {
-  constructor(service, storageService, adminService, validator) {
+  constructor(service, storageService, adminService, emailService, validator) {
     this._service = service;
     this._adminService = adminService;
     this._storageService = storageService;
+    this._emailService = emailService;
     this._validator = validator;
 
     autoBind(this);
@@ -64,10 +65,25 @@ class MembersHandler {
     };
   }
 
+  async postMemberEmailVerification(request) {
+    const { id: credentialId } = request.auth.credentials;
+    const member = await this._service.getMemberById(credentialId);
+    const { email } = member.email;
+
+    await this._emailService.sendEmailVerification(credentialId, email);
+
+    return {
+      status: 'success',
+      message: 'Email verifikasi berhasil dikirimkan',
+    };
+  }
+
   async verifyMemberEmailHandler(request) {
     const { token } = request.params;
 
-    const id = this._emailService.verifyEmail(token);
+    const jwtPayload = this._emailService.verifyEmail(token);
+    const { id } = jwtPayload;
+
     await this._service.changeEmailVerifStatus(id);
 
     return {
@@ -156,7 +172,7 @@ class MembersHandler {
     };
   }
 
-  /* ================================ GUEST SCOPE ================================ */
+  /* ================================ COMMON ================================ */
 
   async getMemberWithProductsHandler(request) {
     const { id } = request.params;
@@ -168,6 +184,36 @@ class MembersHandler {
       data: {
         member,
       },
+    };
+  }
+
+  async memberForgotPasswordHandler(request) {
+    const { email } = request.payload;
+
+    const memberData = await this._service.checkMemberEmail(email);
+    const checkedEmail = memberData.email;
+    const { id } = memberData;
+
+    await this._emailService.sendResetPasswordEmail(id, checkedEmail);
+
+    return {
+      status: 'success',
+      message: 'Berhasil mengirimkan email. Periksa kotak masuk untuk mendapatkan link reset password',
+    };
+  }
+
+  async resetMemberEmailHandler(request) {
+    const { token } = request.params;
+    const { password, confirmPassword } = request.payload;
+
+    const jwtPayload = this._emailService.verifyEmail(token);
+    const { email } = jwtPayload;
+
+    await this._service.resetMemberPassword(email, password, confirmPassword);
+
+    return {
+      status: 'success',
+      message: 'Berhasil memperbarui password',
     };
   }
 }

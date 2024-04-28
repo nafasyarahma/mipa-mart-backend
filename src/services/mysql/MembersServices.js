@@ -18,6 +18,8 @@ class MembersService {
     username, email, password, name, npm, major, ktmUrl, whatsappNumber, address, bio,
   }) {
     await this.verifyNewUsername(username);
+    await this.verifyNewEmail(email);
+
     const id = `member-${nanoid(16)}`;
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -38,7 +40,7 @@ class MembersService {
     });
 
     if (result.id) {
-      this._emailService.sendMemberEmailVerification(id, email);
+      this._emailService.sendEmailVerification(id, email);
       return result.id;
     }
     throw new InvariantError('Member gagal ditambahkan');
@@ -119,7 +121,8 @@ class MembersService {
 
     // jika email berbeda (diedit)
     if (email !== currentData.email) {
-      await this._emailService.sendMemberEmailVerification(id, email);
+      await this.verifyNewEmail(email);
+      await this._emailService.sendEmailVerification(id, email);
       newData.email_verified = false;
     }
 
@@ -193,6 +196,17 @@ class MembersService {
     }
   }
 
+  async verifyNewEmail(email) {
+    const memberEmail = await this._prisma.member.findUnique({
+      where: {
+        email,
+      },
+    });
+    if (memberEmail) {
+      throw new InvariantError('Email sudah digunakan. Harap ganti email Anda');
+    }
+  }
+
   // Mengecek id di db
   async checkMemberId(id) {
     const memberId = await this._prisma.member.findUnique({
@@ -203,6 +217,24 @@ class MembersService {
     if (!memberId || id === null) {
       throw new NotFoundError('Id member tidak ditemukan');
     }
+  }
+
+  // Mengecek email di db
+  async checkMemberEmail(email) {
+    const result = await this._prisma.member.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        email: true,
+        id: true,
+      },
+    });
+
+    if (!result) {
+      throw new NotFoundError('Email Tidak Ditemukan');
+    }
+    return result;
   }
 
   async verifyMemberCredential(username, password) {
@@ -246,6 +278,7 @@ class MembersService {
     return null;
   }
 
+  // Mengubah status verifikasi email menjadi true
   async changeEmailVerifStatus(id) {
     await this.checkMemberId(id);
     const result = await this._prisma.member.update({
@@ -258,6 +291,26 @@ class MembersService {
     });
     if (!result) {
       throw new InvariantError('Gagal mengubah status verifikasi email');
+    }
+  }
+
+  async resetMemberPassword(email, password, confirmPassword) {
+    if (password !== confirmPassword) {
+      throw new InvariantError('Password dan confirm password tidak cocok');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = await this._prisma.member.update({
+      where: {
+        email,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+    if (!result) {
+      throw new InvariantError('Gagal memperbarui password');
     }
   }
 }
