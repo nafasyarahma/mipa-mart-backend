@@ -94,7 +94,7 @@ class CartsService {
     }
   }
 
-  // -- MENGHAPUS ITEM DARI CART
+  // -- MENGHAPUS ITEM DARI CART --
   async removeItemFromCart(id) {
     await this._prisma.cartItem.delete({
       where: {

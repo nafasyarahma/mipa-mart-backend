@@ -58,6 +58,8 @@ const OrdersValidator = require('./validator/orders/index');
 // admin
 const AdminService = require('./services/mysql/AdminServices');
 
+const EmailService = require('./services/message/EmailService');
+
 const init = async () => {
   const categoriesService = new CategoriesService();
   const membersService = new MembersService();
@@ -66,8 +68,9 @@ const init = async () => {
   const productsService = new ProductsService(productImagesStorageService);
   const paymentMethodsService = new PaymentMethodsService();
   const deliveryMethodsService = new DeliveryMethodsService();
+  const emailService = new EmailService();
   const authenticationsService = new AuthenticationsService();
-  const customersService = new CustomersService();
+  const customersService = new CustomersService(emailService);
   const cartsService = new CartsService();
   const paymentImagesStorageService = new StorageService(path.resolve(__dirname, '../static/upload/images/payment'));
   const ordersService = new OrdersService(paymentImagesStorageService);
@@ -160,6 +163,7 @@ const init = async () => {
       options: {
         service: customersService,
         adminService,
+        emailService,
         validator: CustomersValidator,
       },
     },

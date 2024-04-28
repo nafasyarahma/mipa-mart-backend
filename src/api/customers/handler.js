@@ -1,9 +1,10 @@
 const autoBind = require('auto-bind');
 
 class CustomersHandler {
-  constructor(service, adminService, validator) {
+  constructor(service, adminService, emailService, validator) {
     this._service = service;
     this._adminService = adminService;
+    this._emailService = emailService;
     this._validator = validator;
 
     autoBind(this);
@@ -116,6 +117,17 @@ class CustomersHandler {
     return {
       status: 'success',
       message: 'Customer berhasil dihapus',
+    };
+  }
+
+  async verifyCustomerEmailHandler(request) {
+    const { token } = request.params;
+    const id = this._emailService.verifyEmail(token);
+    await this._service.changeEmailVerifStatus(id);
+
+    return {
+      status: 'success',
+      message: 'Email berhasil diverifikasi',
     };
   }
 }

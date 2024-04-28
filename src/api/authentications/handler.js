@@ -20,7 +20,7 @@ class AuthenticationsHandler {
     autoBind(this);
   }
 
-  // proses login disini
+  // Login
   async postAuthenticationHandler(request, h) {
     this._validator.validatePostAuthenticationPayload(request.payload);
 
@@ -56,13 +56,6 @@ class AuthenticationsHandler {
       throw new AuthenticationError('Kredensial yang anda berikan salah');
     }
 
-    // if (role === 'member') {
-    //   await this._membersService.checkVerificationStatus(username);
-    //   id = await this._membersService.verifyMemberCredential(username, password);
-    // } else if (role === 'customer') {
-    //   id = await this._customersService.verifyCustomerCredential(username, password);
-    // }
-
     const accessToken = this._tokenManager.generateAccessToken({ id, role });
     const refreshToken = this._tokenManager.generateRefreshToken({ id, role });
 
@@ -80,7 +73,7 @@ class AuthenticationsHandler {
     return response;
   }
 
-  // memperbarui access token
+  // Memperbarui access token
   async putAuthenticationHandler(request) {
     this._validator.validatePutAuthenticationPayload(request.payload);
 
@@ -100,7 +93,7 @@ class AuthenticationsHandler {
     };
   }
 
-  // logout
+  // Logout
   async deleteAuthenticationHandler(request) {
     this._validator.validateDeleteAuthenticationPayload(request.payload);
 

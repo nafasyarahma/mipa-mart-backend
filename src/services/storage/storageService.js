@@ -10,7 +10,9 @@ class StorageSevice {
   }
 
   writeFile(file, meta) {
-    const filename = +new Date() + meta.filename;
+    const timestamp = +new Date();
+    const sanitizedFilename = meta.filename.replace(/\s+/g, '-');
+    const filename = `${timestamp}_${sanitizedFilename}`;
     const path = `${this._folder}/${filename}`;
     const fileStream = fs.createWriteStream(path);
 

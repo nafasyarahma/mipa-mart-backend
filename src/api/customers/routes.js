@@ -55,6 +55,12 @@ const routes = (handler) => [
       auth: 'mipamart_jwt',
     },
   },
+
+  {
+    method: 'GET',
+    path: '/verify-email/{token}',
+    handler: handler.verifyCustomerEmailHandler,
+  },
 ];
 
 module.exports = routes;

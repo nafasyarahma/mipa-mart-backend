@@ -6,8 +6,9 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthenticationError = require('../../exceptions/AuthenticationError');
 
 class CustomersService {
-  constructor() {
+  constructor(emailService) {
     this._prisma = new PrismaClient();
+    this._emailService = emailService;
   }
 
   // -- MENAMBAHKAN / REGISTRASI CUSTOMER --
@@ -30,11 +31,11 @@ class CustomersService {
       },
     });
 
-    if (!result.id) {
-      throw new InvariantError('Customer gagal ditambahkan');
+    if (result.id) {
+      this._emailService.sendEmailVerification(id, email);
+      return result.id;
     }
-
-    return result.id;
+    throw new InvariantError('Customer gagal ditambahkan');
   }
 
   /* ====================== ADMIN SCOPE ===================== */
@@ -178,6 +179,21 @@ class CustomersService {
       return id;
     }
     return null;
+  }
+
+  async changeEmailVerifStatus(id) {
+    await this.checkCustomerId(id);
+    const result = await this._prisma.customer.update({
+      where: {
+        id,
+      },
+      data: {
+        email_verified: true,
+      },
+    });
+    if (!result) {
+      throw new InvariantError('Gagal mengubah status verifikasi email');
+    }
   }
 }
 
