@@ -82,11 +82,16 @@ const routes = (handler) => [
     },
   },
 
-  /* ================ GUEST ================ */
+  /* ================ COMMON ================ */
   {
     method: 'GET',
     path: '/members/{id}',
     handler: handler.getMemberWithProductsHandler,
+  },
+  {
+    method: 'GET',
+    path: '/member/verify-email/{token}',
+    handler: handler.verifyMemberEmailHandler,
   },
 ];
 

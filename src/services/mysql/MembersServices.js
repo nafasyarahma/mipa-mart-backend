@@ -7,9 +7,10 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class MembersService {
-  constructor(storageService) {
+  constructor(storageService, emailService) {
     this._prisma = new PrismaClient();
     this._storageService = storageService;
+    this._emailService = emailService;
   }
 
   // -- MENAMBAHKAN MEMBER / REGISTRASI --
@@ -35,11 +36,12 @@ class MembersService {
         bio,
       },
     });
-    if (!result.id) {
-      throw new InvariantError('Member gagal ditambahkan');
-    }
 
-    return result.id;
+    if (result.id) {
+      this._emailService.sendMemberEmailVerification(id, email);
+      return result.id;
+    }
+    throw new InvariantError('Member gagal ditambahkan');
   }
 
   // -- MENDAPATKAN SEMUA MEMBER --
@@ -89,7 +91,7 @@ class MembersService {
 
   // -- MENGEDIT DETAIL MEMBER --
   async editMemberById(id, {
-    username, email, password, name, whatsappNumber, address, bio,
+    email, password, name, whatsappNumber, address, bio,
   }) {
     await this.checkMemberId(id);
 
@@ -99,25 +101,26 @@ class MembersService {
         id,
       },
       select: {
+        email: true,
         username: true,
         password: true,
+        email_verified: true,
       },
     });
 
     const newData = {
-      username,
       email,
       name,
       no_wa: whatsappNumber,
       address,
       bio,
+      email_verified: true,
     };
 
-    // jika username berbeda (diedit)
-    if (username !== currentData.username) {
-      // cek apakah sudah digunakan, jika belum update sesuai username baru
-      await this.verifyNewUsername(username);
-      newData.username = username;
+    // jika email berbeda (diedit)
+    if (email !== currentData.email) {
+      await this._emailService.sendMemberEmailVerification(id, email);
+      newData.email_verified = false;
     }
 
     const match = await bcrypt.compare(password, currentData.password);
@@ -241,6 +244,21 @@ class MembersService {
       }
     }
     return null;
+  }
+
+  async changeEmailVerifStatus(id) {
+    await this.checkMemberId(id);
+    const result = await this._prisma.member.update({
+      where: {
+        id,
+      },
+      data: {
+        email_verified: true,
+      },
+    });
+    if (!result) {
+      throw new InvariantError('Gagal mengubah status verifikasi email');
+    }
   }
 }
 

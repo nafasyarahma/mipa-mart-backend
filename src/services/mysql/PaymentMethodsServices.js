@@ -67,7 +67,6 @@ class PaymentMethodsService {
     }
   }
 
-  /* ===================== CUSTOMER SCOPE ==================== */
   // -- Mendapatkan metode bayar member sesuai item pada cart --
   async getPaymentMethodOfCartItemMember(customerId) {
     const cartItem = await this._prisma.cartItem.findFirst({

@@ -61,14 +61,14 @@ const AdminService = require('./services/mysql/AdminServices');
 const EmailService = require('./services/message/EmailService');
 
 const init = async () => {
+  const emailService = new EmailService();
   const categoriesService = new CategoriesService();
-  const membersService = new MembersService();
+  const membersService = new MembersService(emailService);
   const storageService = new StorageService(path.resolve(__dirname, '../static/upload/images/ktm'));
   const productImagesStorageService = new StorageService(path.resolve(__dirname, '../static/upload/images/product'));
   const productsService = new ProductsService(productImagesStorageService);
   const paymentMethodsService = new PaymentMethodsService();
   const deliveryMethodsService = new DeliveryMethodsService();
-  const emailService = new EmailService();
   const authenticationsService = new AuthenticationsService();
   const customersService = new CustomersService(emailService);
   const cartsService = new CartsService();

@@ -10,6 +10,8 @@ class OrdersHandler {
     autoBind(this);
   }
 
+  /* ================================ CUSTOMER SCOPE ================================ */
+
   async postOrdersHandler(request, h) {
     const {
       paymentMethodId, paymentImage, deliveryMethodId, note,
@@ -53,6 +55,23 @@ class OrdersHandler {
     };
   }
 
+  async getCustomerOrderDetailHandler(request) {
+    const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+
+    await this._service.verifyOrderCustomer(id, credentialId);
+    const order = await this._service.getOrderById(id);
+
+    return {
+      status: 'success',
+      data: {
+        order,
+      },
+    };
+  }
+
+  /* ================================ MEMBER SCOPE ================================ */
+
   async getMemberOrderListHandler(request) {
     const { id: credentialId } = request.auth.credentials;
     const orders = await this._service.getMemberOrderList(credentialId);
@@ -70,21 +89,6 @@ class OrdersHandler {
     const { id: credentialId } = request.auth.credentials;
 
     await this._service.verifyOrderMember(id, credentialId);
-    const order = await this._service.getOrderById(id);
-
-    return {
-      status: 'success',
-      data: {
-        order,
-      },
-    };
-  }
-
-  async getCustomerOrderDetailHandler(request) {
-    const { id } = request.params;
-    const { id: credentialId } = request.auth.credentials;
-
-    await this._service.verifyOrderCustomer(id, credentialId);
     const order = await this._service.getOrderById(id);
 
     return {

@@ -15,8 +15,7 @@ class CategoriesHandler {
     const { role: credentialRole } = request.auth.credentials;
     await this._adminService.verifyRoleAdminScope(credentialRole);
 
-    const { name, description } = request.payload;
-    const categoryId = await this._service.addCategory({ name, description });
+    const categoryId = await this._service.addCategory(request.payload);
 
     const response = h.response({
       status: 'success',
@@ -65,6 +64,7 @@ class CategoriesHandler {
 
   async deleteCategoryByIdHandler(request) {
     const { role: credentialRole } = request.auth.credentials;
+
     await this._adminService.verifyRoleAdminScope(credentialRole);
 
     const { id } = request.params;

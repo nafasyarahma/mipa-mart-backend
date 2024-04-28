@@ -9,8 +9,14 @@ const CustomerPayloadSchema = Joi.object({
   address: Joi.string().required(),
 });
 
-const MemberStatusPayloadSchema = Joi.object({
-  verifStatus: Joi.string().valid('pending', 'approved', 'rejected'),
+const PutCustomerPayloadSchema = Joi.object({
+  email: Joi.string().email(),
+  password: Joi.string().required(),
+  name: Joi.string().required(),
+  whatsappNumber: Joi.string().regex(/^(0)8[1-9][0-9]{6,9}$/).required(),
+  address: Joi.string().required(),
 });
 
-module.exports = { CustomerPayloadSchema, MemberStatusPayloadSchema };
+module.exports = {
+  CustomerPayloadSchema, PutCustomerPayloadSchema,
+};

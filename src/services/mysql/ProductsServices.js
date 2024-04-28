@@ -147,18 +147,6 @@ class ProductsService {
   // -- MENAMBAHKAN FOTO PRODUK --
   async addProductImages(images, productId) {
     try {
-      // const uploadedImages = await Promise.all(images.map(async (image) => {
-      //   const filename = await this._storageService.writeFile(image, image.hapi);
-      //   const imageUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/product/${filename}`;
-
-      //   const savedImage = await this._prisma.productImages.create({
-      //     data: {
-      //       product_id: productId,
-      //       url: imageUrl,
-      //     },
-      //   });
-      //   return savedImage;
-      // }));
       const uploadedImages = [];
 
       if (Array.isArray(images)) {

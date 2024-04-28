@@ -64,6 +64,18 @@ class MembersHandler {
     };
   }
 
+  async verifyMemberEmailHandler(request) {
+    const { token } = request.params;
+
+    const id = this._emailService.verifyEmail(token);
+    await this._service.changeEmailVerifStatus(id);
+
+    return {
+      status: 'success',
+      message: 'Email berhasil diverifikasi',
+    };
+  }
+
   /* ================================ ADMIN SCOPE ================================ */
 
   async getAllMembersHandler(request) {

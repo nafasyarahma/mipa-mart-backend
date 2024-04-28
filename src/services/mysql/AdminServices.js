@@ -1,9 +1,7 @@
+/* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
-// const { nanoid } = require('nanoid');
-// const InvariantError = require('../../exceptions/InvariantError');
-// const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 const AuthenticationError = require('../../exceptions/AuthenticationError');
 
@@ -24,7 +22,6 @@ class AdminService {
     });
 
     if (result) {
-      // throw new AuthenticationError('Username atau password yang Anda masukkan salah');
       const { id, password: hashedPassword } = result;
       const match = await bcrypt.compare(password, hashedPassword);
 
@@ -33,11 +30,9 @@ class AdminService {
       }
       return id;
     }
-
     return null;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   async verifyRoleAdminScope(role) {
     if (role !== 'admin') {
       throw new AuthorizationError('Anda bukan admin');

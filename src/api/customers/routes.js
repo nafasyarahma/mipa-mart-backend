@@ -55,10 +55,10 @@ const routes = (handler) => [
       auth: 'mipamart_jwt',
     },
   },
-
+  /* ================ COMMON ================ */
   {
     method: 'GET',
-    path: '/verify-email/{token}',
+    path: '/customer/verify-email/{token}',
     handler: handler.verifyCustomerEmailHandler,
   },
 ];

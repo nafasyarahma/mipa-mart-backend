@@ -42,14 +42,14 @@ class CustomersHandler {
   }
 
   async putCustomerProfileHandler(request) {
-    this._validator.validateCustomerPayload(request.payload);
+    this._validator.validatePutCustomerPayload(request.payload);
     const { id: credentialId } = request.auth.credentials;
 
     const customer = await this._service.editCustomerById(credentialId, request.payload);
 
     return {
       status: 'success',
-      message: 'Data Member berhasil diperbarui',
+      message: 'Data Member berhasil diperbarui. Jika email diubah harap verifikasi segera',
       data: {
         customer,
       },
@@ -88,7 +88,7 @@ class CustomersHandler {
   }
 
   async putCustomerByIdHandler(request) {
-    this._validator.validateCustomerPayload(request.payload);
+    this._validator.validatePutCustomerPayload(request.payload);
 
     const { role: credentialRole } = request.auth.credentials;
     await this._adminService.verifyRoleAdminScope(credentialRole);
@@ -120,8 +120,11 @@ class CustomersHandler {
     };
   }
 
+  /* ================================ COMMON ================================ */
+
   async verifyCustomerEmailHandler(request) {
     const { token } = request.params;
+
     const id = this._emailService.verifyEmail(token);
     await this._service.changeEmailVerifStatus(id);
 

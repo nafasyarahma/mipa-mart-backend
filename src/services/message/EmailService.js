@@ -15,15 +15,32 @@ class EmailService {
     });
   }
 
-  async sendEmailVerification(id, userEmail) {
+  async sendCustomerEmailVerification(id, customerEmail) {
     try {
-      const token = jwt.token.generate({ id, email: userEmail }, process.env.EMAIL_KEY, { expiresIn: '1h' });
+      const token = jwt.token.generate({ id, email: customerEmail }, process.env.EMAIL_KEY, { expiresIn: '1h' });
 
       const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: userEmail,
+        to: customerEmail,
         subject: 'Email Verification',
-        html: `<p>Please click <a href="http://${process.env.HOST}:${process.env.PORT}/verify-email/${token}">here</a> to verify your email.</p>`,
+        html: `<p>Please click <a href="http://${process.env.HOST}:${process.env.PORT}/customer/verify-email/${token}">here</a> to verify your email.</p>`,
+      };
+
+      await this._transporter.sendMail(mailOptions);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async sendMemberEmailVerification(id, memberEmail) {
+    try {
+      const token = jwt.token.generate({ id, email: memberEmail }, process.env.EMAIL_KEY, { expiresIn: '1h' });
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: memberEmail,
+        subject: 'Email Verification',
+        html: `<p>Please click <a href="http://${process.env.HOST}:${process.env.PORT}/member/verify-email/${token}">here</a> to verify your email.</p>`,
       };
 
       await this._transporter.sendMail(mailOptions);

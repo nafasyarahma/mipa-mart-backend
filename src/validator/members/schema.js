@@ -14,7 +14,6 @@ const MemberPayloadSchema = Joi.object({
 });
 
 const PutMemberPayloadSchema = Joi.object({
-  username: Joi.string().required(),
   email: Joi.string().email(),
   password: Joi.string().required(),
   name: Joi.string().required(),

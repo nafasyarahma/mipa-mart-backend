@@ -38,8 +38,6 @@ class CategoriesService {
     return result;
   }
 
-  // Mendapatkan detail kategori dan produk
-
   // Mengedit kategori berdasarkan id
   async editCategoryById(id, { name, description }) {
     await this.checkCategoryId(id);

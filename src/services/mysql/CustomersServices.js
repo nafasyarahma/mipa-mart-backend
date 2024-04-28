@@ -32,13 +32,11 @@ class CustomersService {
     });
 
     if (result.id) {
-      this._emailService.sendEmailVerification(id, email);
+      this._emailService.sendCustomerEmailVerification(id, email);
       return result.id;
     }
     throw new InvariantError('Customer gagal ditambahkan');
   }
-
-  /* ====================== ADMIN SCOPE ===================== */
 
   // -- MENDAPATKAN SEMUA CUSTOMER --
   async getAllCustomers() {
@@ -62,7 +60,7 @@ class CustomersService {
 
   // -- MENGEDIT DETAIL CUSTOMER --
   async editCustomerById(id, {
-    username, email, password, name, whatsappNumber, address,
+    email, password, name, whatsappNumber, address,
   }) {
     await this.checkCustomerId(id);
 
@@ -72,24 +70,25 @@ class CustomersService {
         id,
       },
       select: {
+        email: true,
         username: true,
         password: true,
+        email_verified: true,
       },
     });
 
     const newData = {
-      username,
       email,
       name,
       no_wa: whatsappNumber,
       address,
+      email_verified: true,
     };
 
-    // jika username berbeda (diedit)
-    if (username !== currentData.username) {
-      // cek apakah sudah digunakan, jika belum update sesuai username baru
-      await this.verifyNewUsername(username);
-      newData.username = username;
+    // jika email berbeda (diedit)
+    if (email !== currentData.email) {
+      await this._emailService.sendCustomerEmailVerification(id, email);
+      newData.email_verified = false;
     }
 
     const match = await bcrypt.compare(password, currentData.password);
