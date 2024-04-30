@@ -2,7 +2,7 @@ const Joi = require('joi');
 
 const MemberPayloadSchema = Joi.object({
   username: Joi.string().required(),
-  email: Joi.string().email(),
+  email: Joi.string().email().required(),
   password: Joi.string().required(),
   name: Joi.string().required(),
   npm: Joi.string().required(),
@@ -14,7 +14,7 @@ const MemberPayloadSchema = Joi.object({
 });
 
 const PutMemberPayloadSchema = Joi.object({
-  email: Joi.string().email(),
+  email: Joi.string().email().required(),
   password: Joi.string().required(),
   name: Joi.string().required(),
   whatsappNumber: Joi.string().regex(/^(0)8[1-9][0-9]{6,9}$/).required(),
@@ -26,4 +26,13 @@ const MemberStatusPayloadSchema = Joi.object({
   verifStatus: Joi.string().valid('pending', 'approved', 'rejected'),
 });
 
-module.exports = { MemberPayloadSchema, PutMemberPayloadSchema, MemberStatusPayloadSchema };
+const ForgotPasswordPayloadSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+module.exports = {
+  MemberPayloadSchema,
+  PutMemberPayloadSchema,
+  MemberStatusPayloadSchema,
+  ForgotPasswordPayloadSchema,
+};

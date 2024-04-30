@@ -12,7 +12,7 @@ class CategoriesService {
     autoBind(this);
   }
 
-  // Menambahkan kategori
+  /* MENAMBAHKAN KATEGORI */
   async addCategory({ name, description }) {
     const id = `category-${nanoid(16)}`;
 
@@ -32,13 +32,13 @@ class CategoriesService {
     return result.id;
   }
 
-  // Mendapatkan semua kategori
+  /* MENDAPATKAN SEMUA KATEGORI */
   async getAllCategories() {
     const result = await this._prisma.category.findMany();
     return result;
   }
 
-  // Mengedit kategori berdasarkan id
+  /* MENGEDIT KATEGORI BERDASARKAN ID */
   async editCategoryById(id, { name, description }) {
     await this.checkCategoryId(id);
 
@@ -58,7 +58,7 @@ class CategoriesService {
     return result;
   }
 
-  // Menghapus kategori
+  /* MENGHAPUS KATEGORI */
   async deleteCategoryById(id) {
     await this.checkCategoryId(id);
 

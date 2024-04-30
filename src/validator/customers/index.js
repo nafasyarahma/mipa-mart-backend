@@ -1,5 +1,5 @@
 const InvariantError = require('../../exceptions/InvariantError');
-const { CustomerPayloadSchema, PutCustomerPayloadSchema } = require('./schema');
+const { CustomerPayloadSchema, PutCustomerPayloadSchema, ForgotPasswordPayloadSchema } = require('./schema');
 
 const CustomersValidator = {
   validateCustomerPayload: (payload) => {
@@ -12,6 +12,14 @@ const CustomersValidator = {
 
   validatePutCustomerPayload: (payload) => {
     const validationResult = PutCustomerPayloadSchema.validate(payload);
+
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+
+  validateForgotPasswordPayload: (payload) => {
+    const validationResult = ForgotPasswordPayloadSchema.validate(payload);
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message);

@@ -11,7 +11,7 @@ class CustomersService {
     this._emailService = emailService;
   }
 
-  // -- MENAMBAHKAN / REGISTRASI CUSTOMER --
+  /* MENAMBAHKAN / RESGISTRASI CUSTOMER */
   async addCustomer({
     username, email, password, name, whatsappNumber, address,
   }) {
@@ -40,13 +40,13 @@ class CustomersService {
     throw new InvariantError('Customer gagal ditambahkan');
   }
 
-  // -- MENDAPATKAN SEMUA CUSTOMER --
+  /* MENDAPATKAN SEMUA CUSTOMER */
   async getAllCustomers() {
     const result = await this._prisma.customer.findMany();
     return result;
   }
 
-  // -- MENDAPATKAN DETAIL CUSTOMER --
+  /* MENDAPATKAN DETAIL CUSTOMER */
   async getCustomerById(id) {
     await this.checkCustomerId(id);
     const result = await this._prisma.customer.findUnique({
@@ -60,7 +60,7 @@ class CustomersService {
     return result;
   }
 
-  // -- MENGEDIT DETAIL CUSTOMER --
+  /* MENGEDIT DETAIL CUSTOMER */
   async editCustomerById(id, {
     email, password, name, whatsappNumber, address,
   }) {
@@ -126,8 +126,6 @@ class CustomersService {
     });
   }
 
-  /* ====================== ADDITIONAL FUNCTION ===================== */
-
   // Memverifikasi username memastikan belum digunakan
   async verifyNewUsername(username) {
     const customerUsername = await this._prisma.customer.findUnique({
@@ -147,6 +145,7 @@ class CustomersService {
     }
   }
 
+  // Memverifikasi email memastikan belum digunakan
   async verifyNewEmail(email) {
     const customerEmail = await this._prisma.customer.findUnique({
       where: {
@@ -154,7 +153,7 @@ class CustomersService {
       },
     });
     if (customerEmail) {
-      throw new InvariantError('Email sudah digunakan. Harap ganti email Anda');
+      throw new InvariantError('Email sudah digunakan. Harap ganti email Anda!');
     }
   }
 
@@ -223,6 +222,7 @@ class CustomersService {
     }
   }
 
+  // Mengubah data password dengan password baru
   async resetCustomerPassword(email, password, confirmPassword) {
     if (password !== confirmPassword) {
       throw new InvariantError('Password dan confirm password tidak cocok');

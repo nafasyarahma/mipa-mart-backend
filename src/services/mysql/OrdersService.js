@@ -11,6 +11,7 @@ class OrdersService {
     this._storageService = storageService;
   }
 
+  /* MEMBUAT ORDER */
   async createOrder({
     customerId, paymentMethodId, paymentImage, deliveryMethodId, note,
   }) {
@@ -75,6 +76,7 @@ class OrdersService {
     });
   }
 
+  /* MENDAPATKAN DATA ORDER CUSTOMER TERTENTU */
   async getCustomerOrderList(customerId) {
     const result = await this._prisma.order.findMany({
       where: {
@@ -85,6 +87,7 @@ class OrdersService {
     return result;
   }
 
+  /* MENDAPATKAN SEMUA ORDER YANG DIMILIKI MEMBER */
   async getMemberOrderList(memberId) {
     const result = await this._prisma.order.findMany({
       where: {
@@ -95,8 +98,9 @@ class OrdersService {
     return result;
   }
 
+  /* MENDAPATKAN DETAIL ORDER */
   async getOrderById(id) {
-    const result = await this._prisma.order.findFirst({
+    const result = await this._prisma.order.findUnique({
       where: {
         id,
       },
@@ -110,7 +114,7 @@ class OrdersService {
     return result;
   }
 
-  // ================= MEMBER SCOPE ====================
+  /* MENGUBAH STATUS ORDER */
   async changeOrderStatus(id, { status }) {
     const result = await this._prisma.order.update({
       where: {
@@ -127,6 +131,7 @@ class OrdersService {
     return result;
   }
 
+  /* MENANGANI GAMBAR BUKTI PEMBAYARAN */
   async handlePaymentImage(paymentImage) {
     if (paymentImage && paymentImage.hapi && paymentImage.hapi.filename) {
       // Jika gambar pembayaran ada, simpan file dan dapatkan URL-nya
@@ -157,6 +162,7 @@ class OrdersService {
     }
   }
 
+  /* MEMVERIFIKASI ORDER MILIK CUSTOMER YANG SAH */
   async verifyOrderCustomer(id, customerId) {
     const result = await this._prisma.order.findUnique({
       where: {

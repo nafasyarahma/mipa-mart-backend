@@ -13,7 +13,7 @@ class MembersService {
     this._emailService = emailService;
   }
 
-  // -- MENAMBAHKAN MEMBER / REGISTRASI --
+  /* MENAMBAHKAN MEMBER / REGISTRASI */
   async addMember({
     username, email, password, name, npm, major, ktmUrl, whatsappNumber, address, bio,
   }) {
@@ -46,13 +46,13 @@ class MembersService {
     throw new InvariantError('Member gagal ditambahkan');
   }
 
-  // -- MENDAPATKAN SEMUA MEMBER --
+  /* MENDAPATKAN SEMUA MEMBER */
   async getAllMembers() {
     const result = await this._prisma.member.findMany();
     return result;
   }
 
-  // -- MENDAPATKAN DETAIL MEMBER --
+  /* MENDAPATKAN DETAIL MEMBER */
   async getMemberById(id) {
     await this.checkMemberId(id);
     const result = await this._prisma.member.findUnique({
@@ -66,7 +66,7 @@ class MembersService {
     return result;
   }
 
-  // -- MENDAPATKAN DETAIL MEMBER BESERTA PRODUK--
+  /* MENDAPATKAN DETAIL MEMBER BESERTA PRODUK */
   async getMemberWithProducts(id) {
     await this.checkMemberId(id);
     const memberData = await this._prisma.member.findUnique({
@@ -91,7 +91,7 @@ class MembersService {
     return selectedMemberData;
   }
 
-  // -- MENGEDIT DETAIL MEMBER --
+  /* MENGEDIT DETAIL MEMBER */
   async editMemberById(id, {
     email, password, name, whatsappNumber, address, bio,
   }) {
@@ -148,7 +148,7 @@ class MembersService {
     return result;
   }
 
-  // -- MENGEDIT STATUS VERIFIKASI --
+  /* MENGEDIT STATUS VERIFIKASI */
   async editMemberStatusById(id, { verifStatus }) {
     await this.checkMemberId(id);
 
@@ -166,7 +166,7 @@ class MembersService {
     return result;
   }
 
-  // -- MENGHAPUS MEMBER --
+  /* MENGHAPUS MEMBER */
   async deleteMemberById(id) {
     await this.checkMemberId(id);
 
@@ -196,6 +196,7 @@ class MembersService {
     }
   }
 
+  // Memverifikasi email memastikan belum digunakan
   async verifyNewEmail(email) {
     const memberEmail = await this._prisma.member.findUnique({
       where: {
@@ -237,6 +238,7 @@ class MembersService {
     return result;
   }
 
+  // Memverifikasi kredensial (uname/pw)
   async verifyMemberCredential(username, password) {
     const result = await this._prisma.member.findFirst({
       where: {
@@ -294,6 +296,7 @@ class MembersService {
     }
   }
 
+  // Mengubah data password dengan password baru
   async resetMemberPassword(email, password, confirmPassword) {
     if (password !== confirmPassword) {
       throw new InvariantError('Password dan confirm password tidak cocok');

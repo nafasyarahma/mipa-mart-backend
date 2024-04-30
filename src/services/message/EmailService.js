@@ -33,24 +33,6 @@ class EmailService {
     }
   }
 
-  // async sendMemberEmailVerification(id, memberEmail) {
-  //   try {
-  //     const token = jwt.token.generate({ id, email: memberEmail }, process.env.EMAIL_KEY,
-  // { expiresIn: '1h' });
-
-  //     const mailOptions = {
-  //       from: process.env.EMAIL_USER,
-  //       to: memberEmail,
-  //       subject: 'Email Verification',
-  //       html: `<p>Please click <a href="http://${process.env.HOST}:${process.env.PORT}/member/verify-email/${token}">here</a> to verify your email.</p>`,
-  //     };
-
-  //     await this._transporter.sendMail(mailOptions);
-  //   } catch (error) {
-  //     throw new Error(error);
-  //   }
-  // }
-
   async sendResetPasswordEmail(id, email) {
     try {
       const role = id.split('-')[0];

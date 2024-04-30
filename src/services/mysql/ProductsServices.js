@@ -17,7 +17,7 @@ class ProductsService {
     autoBind(this);
   }
 
-  // -- MENAMBAHKAN PRODUK --
+  /* MENAMBAHKAN PRODUK */
   async addProduct({
     name, description, price, status, productImages, categoryId, memberId,
   }) {
@@ -43,7 +43,7 @@ class ProductsService {
     return result.id;
   }
 
-  // -- MENDAPATKAN PRODUK YANG DIMILIKI MEMBER --
+  /* MENDAPATKAN PRODUK YANG DIMILIKI MEMBER */
   async getMemberProducts(memberId) {
     const result = await this._prisma.product.findMany({
       where: {
@@ -53,7 +53,7 @@ class ProductsService {
     return result;
   }
 
-  // -- MENDAPATKAN SEMUA PRODUK --
+  /* MENDAPATKAN SEMUA PRODUK */
   async getAllProducts({ name }) {
     const whereClause = {};
     if (name) {
@@ -67,7 +67,7 @@ class ProductsService {
     return result;
   }
 
-  // -- MENDAPATKAN DETAIL PRODUK --
+  /* MENDAPATKAN DETAIL PRODUK */
   async getProductById(id) {
     const result = await this._prisma.product.findUnique({
       where: {
@@ -106,7 +106,7 @@ class ProductsService {
     return modifiedResult;
   }
 
-  // -- MENGEDIT DETAIL PRODUK --
+  /* MENGEDIT DETAIL PRODUK */
   async editProductById(id, {
     name, description, price, status, productImages,
   }) {
@@ -133,7 +133,7 @@ class ProductsService {
     return result;
   }
 
-  // -- MENGHAPUS PRODUK --
+  /* MENGHAPUS PRODUK */
   async deleteProductById(id) {
     await this.deleteProductFromStorage(id);
 
@@ -144,7 +144,7 @@ class ProductsService {
     });
   }
 
-  // -- MENAMBAHKAN FOTO PRODUK --
+  // Menampahkan Foto Produk
   async addProductImages(images, productId) {
     try {
       const uploadedImages = [];
@@ -183,7 +183,7 @@ class ProductsService {
     }
   }
 
-  // -- MENGHAPUS GAMBAR DARI DIREKTORI SAAT GAMBAR DIHAPUS --
+  // Menghapus Gambar dari Direktori saat Gambar Dihapus --
   async deleteProductFromStorage(productId) {
     const productImages = await this._prisma.productImages.findMany({
       where: {

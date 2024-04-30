@@ -1,5 +1,10 @@
 const InvariantError = require('../../exceptions/InvariantError');
-const { MemberPayloadSchema, MemberStatusPayloadSchema, PutMemberPayloadSchema } = require('./schema');
+const {
+  MemberPayloadSchema,
+  MemberStatusPayloadSchema,
+  PutMemberPayloadSchema,
+  ForgotPasswordPayloadSchema,
+} = require('./schema');
 
 const MembersValidator = {
   validateMemberPayload: (payload) => {
@@ -20,6 +25,14 @@ const MembersValidator = {
 
   validateMemberStatusPayload: (payload) => {
     const validationResult = MemberStatusPayloadSchema.validate(payload);
+
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+
+  validateForgotPasswordPayload: (payload) => {
+    const validationResult = ForgotPasswordPayloadSchema.validate(payload);
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message);

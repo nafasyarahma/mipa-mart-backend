@@ -58,7 +58,7 @@ class MembersHandler {
 
     return {
       status: 'success',
-      message: 'Data Member berhasil diperbarui',
+      message: 'Berhasil memperbarui profil. Jika Anda mengubah email, periksa kotak masuk dan harap verifikasi segera!',
       data: {
         member,
       },
@@ -75,20 +75,6 @@ class MembersHandler {
     return {
       status: 'success',
       message: 'Email verifikasi berhasil dikirimkan',
-    };
-  }
-
-  async verifyMemberEmailHandler(request) {
-    const { token } = request.params;
-
-    const jwtPayload = this._emailService.verifyEmail(token);
-    const { id } = jwtPayload;
-
-    await this._service.changeEmailVerifStatus(id);
-
-    return {
-      status: 'success',
-      message: 'Email berhasil diverifikasi',
     };
   }
 
@@ -135,7 +121,7 @@ class MembersHandler {
 
     return {
       status: 'success',
-      message: 'Data Member berhasil diperbarui',
+      message: 'Data cember berhasil diperbarui',
       data: {
         member,
       },
@@ -187,7 +173,19 @@ class MembersHandler {
     };
   }
 
+  async verifyMemberEmailHandler(request) {
+    const { token } = request.params;
+
+    const jwtPayload = this._emailService.verifyEmail(token);
+    const { id } = jwtPayload;
+
+    await this._service.changeEmailVerifStatus(id);
+
+    return ('Email berhasil diverifikasi');
+  }
+
   async memberForgotPasswordHandler(request) {
+    await this._service.validateForgotPasswordPayload(request.payload);
     const { email } = request.payload;
 
     const memberData = await this._service.checkMemberEmail(email);
@@ -202,7 +200,7 @@ class MembersHandler {
     };
   }
 
-  async resetMemberEmailHandler(request) {
+  async resetMemberPasswordHandler(request) {
     const { token } = request.params;
     const { password, confirmPassword } = request.payload;
 

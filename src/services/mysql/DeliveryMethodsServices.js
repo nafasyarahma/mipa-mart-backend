@@ -9,7 +9,7 @@ class DeliveryMethodsService {
     this._prisma = new PrismaClient();
   }
 
-  // -- MENAMBAHKAN METODE PENGIRIMAN --
+  /* MENAMBAHKAN METODE PENGIRIMAN */
   async addDeliveryMethod({ method, description, memberId }) {
     const id = `deliv-${nanoid(16)}`;
 
@@ -26,7 +26,7 @@ class DeliveryMethodsService {
     return result.id;
   }
 
-  // -- MENDAPATKAN METODE PENGIRIMAN MEMBER --
+  /* MENDAPATKAN METODE PENGIRIMAN MEMBER TERTENTU */
   async getMemberDeliveryMenthods(memberId) {
     const result = await this._prisma.deliveryMethod.findMany({
       where: {
@@ -36,7 +36,7 @@ class DeliveryMethodsService {
     return result;
   }
 
-  // -- MENGEDIT DEATIL METODE PEMBAYARAN --
+  /* MENGEDIT DEATIL METODE PENGIRIMAN */
   async editDeliveryMethodById(id, { method, description }) {
     const result = await this._prisma.deliveryMethod.update({
       where: {
@@ -52,7 +52,7 @@ class DeliveryMethodsService {
     }
   }
 
-  // -- MENGHAPUS DEATIL METODE PENGIRIMAN --
+  /* MENGHAPUS METODE PENGIRIMAN */
   async deleteDeliveryMethodById(id) {
     await this._prisma.deliveryMethod.delete({
       where: {

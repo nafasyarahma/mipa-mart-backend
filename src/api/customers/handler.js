@@ -49,7 +49,7 @@ class CustomersHandler {
 
     return {
       status: 'success',
-      message: 'Data Member berhasil diperbarui. Jika email diubah harap verifikasi segera',
+      message: 'Berhasil memperbarui profil. Jika Anda mengubah email, periksa kotak masuk dan harap verifikasi segera!',
       data: {
         customer,
       },
@@ -149,11 +149,12 @@ class CustomersHandler {
   }
 
   async customerForgotPasswordHandler(request) {
+    await this._validator.validateForgotPasswordPayload(request.payload);
     const { email } = request.payload;
 
     const customerData = await this._service.checkCustomerEmail(email);
     const checkedEmail = customerData.email;
-    const { id } = customerData.id;
+    const { id } = customerData;
 
     await this._emailService.sendResetPasswordEmail(id, checkedEmail);
 

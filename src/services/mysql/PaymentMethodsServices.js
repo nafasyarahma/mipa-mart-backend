@@ -10,7 +10,7 @@ class PaymentMethodsService {
     this._prisma = new PrismaClient();
   }
 
-  // -- MENAMBAHKAN METODE PEMBAYARAN --
+  /* MENAMBAHKAN METODE PEMBAYARAN */
   async addPaymentMethod({
     provider, accountNumber, name, memberId,
   }) {
@@ -29,7 +29,7 @@ class PaymentMethodsService {
     return result.id;
   }
 
-  // -- MENDAPATKAN METODE BAYAR MEMBER --
+  /* MENDAPATKAN METODE BAYAR MEMBER */
   async getMemberPaymentMenthods(memberId) {
     const result = await this._prisma.paymentMethod.findMany({
       where: {
@@ -39,7 +39,7 @@ class PaymentMethodsService {
     return result;
   }
 
-  // -- MENGHAPUS DEATIL METODE PEMBAYARAN --
+  /* MENGHAPUS DEATIL METODE PEMBAYARAN */
   async deletePaymentMethodById(id) {
     await this._prisma.paymentMethod.delete({
       where: {
@@ -67,7 +67,7 @@ class PaymentMethodsService {
     }
   }
 
-  // -- Mendapatkan metode bayar member sesuai item pada cart --
+  // Mendapatkan metode bayar member sesuai item pada cart
   async getPaymentMethodOfCartItemMember(customerId) {
     const cartItem = await this._prisma.cartItem.findFirst({
       where: {
@@ -93,6 +93,7 @@ class PaymentMethodsService {
     return paymentMethods;
   }
 
+  // Memverifikasi bahwa hanya payment method member yang ada di cart yang bisa dipilih
   async verifyPaymentMethod({ customerId, paymentMethodId }) {
     const paymentMethod = await this._prisma.paymentMethod.findUnique({
       where: {

@@ -6,7 +6,7 @@ class AuthenticationsServices {
     this._prisma = new PrismaClient();
   }
 
-  // -- MENAMBAHKAN REFRESH TOKEN --
+  /* MENAMBAHKAN REFRESH TOKEN */
   async addRefreshToken(token) {
     await this._prisma.authentications.create({
       data: {
@@ -15,7 +15,7 @@ class AuthenticationsServices {
     });
   }
 
-  // -- MEMVERIFIKASI KEBERADAAN TOKEN DI DB --
+  /* MEMVERIFIKASI KEBERADAAN TOKEN DI DB */
   async verifyRefreshToken(token) {
     const result = await this._prisma.authentications.findFirst({
       where: {
@@ -28,7 +28,7 @@ class AuthenticationsServices {
     }
   }
 
-  // -- MENGHAPUS REFRESH TOKEN --
+  /* MENGHAPUS REFRESH TOKEN */
   async deleteRefreshToken(token) {
     await this._prisma.authentications.deleteMany({
       where: {

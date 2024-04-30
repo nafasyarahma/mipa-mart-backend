@@ -9,7 +9,7 @@ class CartsService {
     this._prisma = new PrismaClient();
   }
 
-  // -- MENAMBAHKAN PRODUK KE KERANJANG --
+  /* MENAMBAHKAN PRODUK KE KERANJANG */
   async addItemToCart({ customerId, productId, quantity }) {
     const id = `cartitem-${nanoid(16)}`;
 
@@ -65,7 +65,7 @@ class CartsService {
     return result.id;
   }
 
-  // -- MENDAPATKAN PRODUK DALAM CART --
+  /* MENDAPATKAN PRODUK DALAM CART */
   async getCarts(customerId) {
     const result = await this._prisma.cartItem.findMany({
       where: {
@@ -78,7 +78,7 @@ class CartsService {
     return result;
   }
 
-  // -- MENGUBAH JUMLAH PRODUK --
+  /* MENGUBAH JUMLAH PRODUK */
   async changeQuantity(id, { quantity }) {
     const result = await this._prisma.cartItem.update({
       where: {
@@ -94,7 +94,7 @@ class CartsService {
     }
   }
 
-  // -- MENGHAPUS ITEM DARI CART --
+  /* MENGHAPUS ITEM DARI CART */
   async removeItemFromCart(id) {
     await this._prisma.cartItem.delete({
       where: {
