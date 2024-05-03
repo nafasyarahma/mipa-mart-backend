@@ -1,6 +1,7 @@
 const InvariantError = require('../../exceptions/InvariantError');
 const {
   MemberPayloadSchema,
+  KtmImageHeadersSchema,
   MemberStatusPayloadSchema,
   PutMemberPayloadSchema,
   ForgotPasswordPayloadSchema,
@@ -10,6 +11,13 @@ const MembersValidator = {
   validateMemberPayload: (payload) => {
     const validationResult = MemberPayloadSchema.validate(payload);
 
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+
+  validateKtmImageHeaders: (payload) => {
+    const validationResult = KtmImageHeadersSchema.validate(payload);
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message);
     }

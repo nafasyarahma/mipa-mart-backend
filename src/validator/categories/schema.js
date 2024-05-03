@@ -5,4 +5,8 @@ const CategoryPayloadSchema = Joi.object({
   description: [Joi.string(), Joi.allow(null)],
 });
 
-module.exports = { CategoryPayloadSchema };
+const PutCategoryPayloadSchema = Joi.object({
+  description: [Joi.string(), Joi.allow(null)],
+});
+
+module.exports = { CategoryPayloadSchema, PutCategoryPayloadSchema };

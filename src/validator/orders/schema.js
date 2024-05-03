@@ -12,7 +12,7 @@ const OrderStatusPayloadSchema = Joi.object({
 });
 
 const PaymentImageHeadersSchema = Joi.object({
-  'content-type': Joi.string().valid('image/apng', 'image/jpg', 'image/jpeg', 'image/png', 'image/webp').required(),
+  'content-type': Joi.string().valid('image/jpg', 'image/jpeg', 'image/png').required(),
 }).unknown();
 
 module.exports = { OrderPayloadSchema, OrderStatusPayloadSchema, PaymentImageHeadersSchema };

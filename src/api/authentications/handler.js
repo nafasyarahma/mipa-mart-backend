@@ -37,9 +37,9 @@ class AuthenticationsHandler {
 
     // check member
     if (!id) {
-      await this._membersService.checkVerificationStatus(username);
       id = await this._membersService.verifyMemberCredential(username, password);
       if (id) {
+        await this._membersService.checkVerificationStatus(username);
         role = 'member';
       }
     }
@@ -53,7 +53,7 @@ class AuthenticationsHandler {
     }
 
     if (!id) {
-      throw new AuthenticationError('Kredensial yang anda berikan salah');
+      throw new AuthenticationError('Username atau password yang Anda masukkan salah');
     }
 
     const accessToken = this._tokenManager.generateAccessToken({ id, role });
@@ -63,7 +63,7 @@ class AuthenticationsHandler {
 
     const response = h.response({
       status: 'success',
-      message: 'Authentication berhasil ditambahkan',
+      message: 'Berhasil login!',
       data: {
         accessToken,
         refreshToken,
@@ -103,7 +103,7 @@ class AuthenticationsHandler {
 
     return {
       status: 'success',
-      message: 'Refresh token berhasil dihapus',
+      message: 'Berhasil logout!',
     };
   }
 }

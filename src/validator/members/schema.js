@@ -3,7 +3,8 @@ const Joi = require('joi');
 const MemberPayloadSchema = Joi.object({
   username: Joi.string().required(),
   email: Joi.string().email().required(),
-  password: Joi.string().required(),
+  password: Joi.string().min(3).trim().regex(/\S/)
+    .required(),
   name: Joi.string().required(),
   npm: Joi.string().required(),
   major: Joi.string().valid('biologi', 'matematika', 'fisika', 'kimia', 'ilmu_komputer'),
@@ -22,6 +23,10 @@ const PutMemberPayloadSchema = Joi.object({
   bio: [Joi.string(), Joi.allow(null)],
 });
 
+const KtmImageHeadersSchema = Joi.object({
+  'content-type': Joi.string().valid('image/jpg', 'image/jpeg', 'image/png').required(),
+}).unknown();
+
 const MemberStatusPayloadSchema = Joi.object({
   verifStatus: Joi.string().valid('pending', 'approved', 'rejected'),
 });
@@ -32,6 +37,7 @@ const ForgotPasswordPayloadSchema = Joi.object({
 
 module.exports = {
   MemberPayloadSchema,
+  KtmImageHeadersSchema,
   PutMemberPayloadSchema,
   MemberStatusPayloadSchema,
   ForgotPasswordPayloadSchema,

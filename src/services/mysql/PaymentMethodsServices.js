@@ -57,7 +57,7 @@ class PaymentMethodsService {
     });
 
     if (!result) {
-      throw new NotFoundError('Metode pembayaran tidak ditemukan');
+      throw new NotFoundError('Id tidak ditemukan');
     }
 
     const paymentMethodMember = result.member_id;

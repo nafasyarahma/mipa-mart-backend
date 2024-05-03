@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt');
 const InvariantError = require('../../exceptions/InvariantError');
 const AuthenticationError = require('../../exceptions/AuthenticationError');
 const NotFoundError = require('../../exceptions/NotFoundError');
-const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class MembersService {
   constructor(storageService, emailService) {
@@ -15,13 +14,16 @@ class MembersService {
 
   /* MENAMBAHKAN MEMBER / REGISTRASI */
   async addMember({
-    username, email, password, name, npm, major, ktmUrl, whatsappNumber, address, bio,
+    username, email, password, name, npm, major, ktmImage, whatsappNumber, address, bio,
   }) {
     await this.verifyNewUsername(username);
     await this.verifyNewEmail(email);
 
     const id = `member-${nanoid(16)}`;
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    const filename = await this._storageService.writeFile(ktmImage, ktmImage.hapi);
+    const ktmUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/ktm/${filename}`;
 
     const result = await this._prisma.member.create({
       data: {
@@ -145,7 +147,6 @@ class MembersService {
     if (!result) {
       throw new InvariantError('Gagal memperbarui data member');
     }
-    return result;
   }
 
   /* MENGEDIT STATUS VERIFIKASI */
@@ -204,7 +205,7 @@ class MembersService {
       },
     });
     if (memberEmail) {
-      throw new InvariantError('Email sudah digunakan. Harap ganti email Anda');
+      throw new InvariantError('Email sudah digunakan. Harap ganti email Anda!');
     }
   }
 
@@ -272,9 +273,9 @@ class MembersService {
 
     if (member) {
       if (member.verif_status === 'pending') {
-        throw new AuthorizationError('Akun anda sedang dalam proses verifikasi. Mohon tunggu hingga status disetujui');
+        throw new AuthenticationError('Akun anda sedang dalam proses verifikasi. Mohon tunggu hingga status disetujui');
       } else if (member.verif_status === 'rejected') {
-        throw new AuthorizationError('Permintaan registrasi akun Anda ditolak. Silahkan registrasi ulang dengan data yang benar atau hubungi Admin');
+        throw new AuthenticationError('Permintaan registrasi akun Anda ditolak. Silahkan registrasi ulang dengan data yang benar atau hubungi Admin');
       }
     }
     return null;

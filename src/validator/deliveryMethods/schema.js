@@ -5,4 +5,8 @@ const DeliveryMethodPayloadSchema = Joi.object({
   description: Joi.string().required(),
 });
 
-module.exports = { DeliveryMethodPayloadSchema };
+const PutDeliveryMethodPayloadSchema = Joi.object({
+  description: Joi.string().required(),
+});
+
+module.exports = { DeliveryMethodPayloadSchema, PutDeliveryMethodPayloadSchema };

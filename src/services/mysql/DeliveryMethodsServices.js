@@ -37,13 +37,13 @@ class DeliveryMethodsService {
   }
 
   /* MENGEDIT DEATIL METODE PENGIRIMAN */
-  async editDeliveryMethodById(id, { method, description }) {
+  async editDeliveryMethodById(id, { description }) {
     const result = await this._prisma.deliveryMethod.update({
       where: {
         id,
       },
       data: {
-        method, description,
+        description,
       },
     });
 
@@ -70,7 +70,7 @@ class DeliveryMethodsService {
     });
 
     if (!result) {
-      throw new NotFoundError('Metode pengiriman tidak ditemukan');
+      throw new NotFoundError('Id tidak ditemukan');
     }
 
     const deliveryMethodMember = result.member_id;

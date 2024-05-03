@@ -19,7 +19,7 @@ class CategoriesHandler {
 
     const response = h.response({
       status: 'success',
-      message: 'Kategori berhasil ditambahkan',
+      message: 'Berhasil menambahkan kategori',
       data: {
         categoryId,
       },
@@ -44,21 +44,18 @@ class CategoriesHandler {
   }
 
   async putCategoryByIdHandler(request) {
-    this._validator.validateCategoryPayload(request.payload);
+    this._validator.validatePutCategoryPayload(request.payload);
 
     const { role: credentialRole } = request.auth.credentials;
     await this._adminService.verifyRoleAdminScope(credentialRole);
 
     const { id } = request.params;
 
-    const category = await this._service.editCategoryById(id, request.payload);
+    await this._service.editCategoryById(id, request.payload);
 
     return {
       status: 'success',
-      message: 'Kategori berhasil diperbarui',
-      data: {
-        category,
-      },
+      message: 'Berhasil memperbarui kategori',
     };
   }
 
@@ -72,7 +69,7 @@ class CategoriesHandler {
 
     return {
       status: 'success',
-      message: 'Kategori berhasil dihapus',
+      message: 'Berhasil menghapus kategori',
     };
   }
 }

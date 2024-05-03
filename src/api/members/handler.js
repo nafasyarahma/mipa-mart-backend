@@ -1,10 +1,9 @@
 const autoBind = require('auto-bind');
 
 class MembersHandler {
-  constructor(service, storageService, adminService, emailService, validator) {
+  constructor(service, adminService, emailService, validator) {
     this._service = service;
     this._adminService = adminService;
-    this._storageService = storageService;
     this._emailService = emailService;
     this._validator = validator;
 
@@ -15,20 +14,14 @@ class MembersHandler {
 
   async postMemberHandler(request, h) {
     this._validator.validateMemberPayload(request.payload);
-    const {
-      username, email, password, name, npm, major, ktmImage, whatsappNumber, address, bio,
-    } = request.payload;
+    const { ktmImage } = request.payload;
+    this._validator.validateKtmImageHeaders(ktmImage.hapi.headers);
 
-    const filename = await this._storageService.writeFile(ktmImage, ktmImage.hapi);
-    const ktmUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/ktm/${filename}`;
-
-    const memberId = await this._service.addMember({
-      username, email, password, name, npm, major, ktmUrl, whatsappNumber, address, bio,
-    });
+    const memberId = await this._service.addMember(request.payload);
 
     const response = h.response({
       status: 'success',
-      message: 'Member berhasil ditambahkan',
+      message: 'Registrasi berhasil! Kami telah mengirimkan pesan verifikasi ke alamat email Anda. Silakan periksa kotak masuk Anda.',
       data: {
         memberId,
       },
@@ -54,14 +47,11 @@ class MembersHandler {
     this._validator.validatePutMemberPayload(request.payload);
     const { id: credentialId } = request.auth.credentials;
 
-    const member = await this._service.editMemberById(credentialId, request.payload);
+    await this._service.editMemberById(credentialId, request.payload);
 
     return {
       status: 'success',
-      message: 'Berhasil memperbarui profil. Jika Anda mengubah email, periksa kotak masuk dan harap verifikasi segera!',
-      data: {
-        member,
-      },
+      message: 'Berhasil memperbarui profil. Jika Anda mengubah email, periksa kotak masuk dan harap verifikasi segera email terbaru Anda!',
     };
   }
 
@@ -110,21 +100,18 @@ class MembersHandler {
   }
 
   async putMemberByIdHandler(request) {
-    this._validator.validateMemberPayload(request.payload);
+    this._validator.validatePutMemberPayload(request.payload);
 
     const { role: credentialRole } = request.auth.credentials;
     await this._adminService.verifyRoleAdminScope(credentialRole);
 
     const { id } = request.params;
 
-    const member = await this._service.editMemberById(id, request.payload);
+    await this._service.editMemberById(id, request.payload);
 
     return {
       status: 'success',
-      message: 'Data cember berhasil diperbarui',
-      data: {
-        member,
-      },
+      message: 'Berhasil memperbarui data member. Jika email diubah maka pesan verifikasi akan dikirimkan ke email member',
     };
   }
 
@@ -140,7 +127,7 @@ class MembersHandler {
 
     return {
       status: 'success',
-      message: 'Status verifikasi member berhasil diperbarui',
+      message: 'Berhasil memperbarui status verifikasi member',
     };
   }
 

@@ -42,7 +42,7 @@ class DeliveryMethodsHandler {
   }
 
   async putMemberDeliveryMethodByIdHandler(request) {
-    this._validator.validateDeliveryMethodPayload(request.payload);
+    this._validator.validatePutDeliveryMethodPayload(request.payload);
 
     const { id } = request.params;
     const { id: credentialId } = request.auth.credentials;

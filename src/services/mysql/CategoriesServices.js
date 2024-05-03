@@ -39,7 +39,7 @@ class CategoriesService {
   }
 
   /* MENGEDIT KATEGORI BERDASARKAN ID */
-  async editCategoryById(id, { name, description }) {
+  async editCategoryById(id, { description }) {
     await this.checkCategoryId(id);
 
     const result = await this._prisma.category.update({
@@ -47,7 +47,6 @@ class CategoriesService {
         id,
       },
       data: {
-        name,
         description,
       },
     });
@@ -55,7 +54,6 @@ class CategoriesService {
     if (!result) {
       throw new InvariantError('Kategori gagal diperbarui');
     }
-    return result;
   }
 
   /* MENGHAPUS KATEGORI */

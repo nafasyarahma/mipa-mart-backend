@@ -63,8 +63,8 @@ const EmailService = require('./services/message/EmailService');
 const init = async () => {
   const emailService = new EmailService();
   const categoriesService = new CategoriesService();
-  const storageService = new StorageService(path.resolve(__dirname, '../static/upload/images/ktm'));
-  const membersService = new MembersService(storageService, emailService);
+  const ktmImageStorageService = new StorageService(path.resolve(__dirname, '../static/upload/images/ktm'));
+  const membersService = new MembersService(ktmImageStorageService, emailService);
   const productImagesStorageService = new StorageService(path.resolve(__dirname, '../static/upload/images/product'));
   const productsService = new ProductsService(productImagesStorageService);
   const paymentMethodsService = new PaymentMethodsService();
@@ -128,7 +128,6 @@ const init = async () => {
       plugin: members,
       options: {
         service: membersService,
-        storageService,
         adminService,
         emailService,
         validator: MembersValidator,
@@ -214,7 +213,7 @@ const init = async () => {
       }
 
       // melihat detail error
-      const errorMessage = response.message || 'Terjadi kegagalan pada server kami';
+      const errorMessage = console.log(response.message) || 'Terjadi kegagalan pada server kami';
       // penanganan error sesuai kebutuhan
       const newResponse = h.response({
         status: 'error',
