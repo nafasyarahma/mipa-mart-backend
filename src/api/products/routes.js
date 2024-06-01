@@ -63,11 +63,6 @@ const routes = (handler) => [
   },
   {
     method: 'GET',
-    path: '/products/search',
-    handler: handler.getAllProductsHandler,
-  },
-  {
-    method: 'GET',
     path: '/products/{id}',
     handler: handler.getProductByIdHandler,
   },

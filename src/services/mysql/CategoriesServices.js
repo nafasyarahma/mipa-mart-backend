@@ -38,6 +38,20 @@ class CategoriesService {
     return result;
   }
 
+  async getCategoryById(id) {
+    const result = await this._prisma.category.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!result) {
+      throw new NotFoundError('Gagal mendapatkan detail kategori');
+    }
+
+    return result;
+  }
+
   /* MENGEDIT KATEGORI BERDASARKAN ID */
   async editCategoryById(id, { description }) {
     await this.checkCategoryId(id);

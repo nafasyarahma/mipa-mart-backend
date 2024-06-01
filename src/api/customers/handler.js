@@ -19,7 +19,7 @@ class CustomersHandler {
 
     const response = h.response({
       status: 'success',
-      message: 'Customer berhasil ditambahkan',
+      message: 'Kami telah mengirimkan pesan verifikasi ke alamat email Anda. Silakan periksa kotak masuk Anda.',
       data: {
         customerId,
       },
@@ -112,7 +112,7 @@ class CustomersHandler {
 
     return {
       status: 'success',
-      message: 'Data customer berhasil diperbarui',
+      message: 'Berhasil memperbarui data customer. Jika email diubah, pesan verifikasi akan dirimkan ke email customer',
       data: {
         customer,
       },
@@ -142,10 +142,7 @@ class CustomersHandler {
     const { id } = jwtPayload;
     await this._service.changeEmailVerifStatus(id);
 
-    return {
-      status: 'success',
-      message: 'Email berhasil diverifikasi',
-    };
+    return ('Email berhasil diverifikasi');
   }
 
   async customerForgotPasswordHandler(request) {

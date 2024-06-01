@@ -36,6 +36,16 @@ class DeliveryMethodsService {
     return result;
   }
 
+  /* MENDAPATKAN DETAIL METODE PENGIRIMAN MEMBER TERTENTU */
+  async getMemberDeliveryMenthodById(id) {
+    const result = await this._prisma.deliveryMethod.findUnique({
+      where: {
+        id,
+      },
+    });
+    return result;
+  }
+
   /* MENGEDIT DEATIL METODE PENGIRIMAN */
   async editDeliveryMethodById(id, { description }) {
     const result = await this._prisma.deliveryMethod.update({

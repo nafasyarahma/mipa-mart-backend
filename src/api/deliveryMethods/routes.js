@@ -16,6 +16,14 @@ const routes = (handler) => [
     },
   },
   {
+    method: 'GET',
+    path: '/member/delivery-methods/{id}',
+    handler: handler.getMemberDeliveryMethodByIdHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
+  {
     method: 'PUT',
     path: '/member/delivery-methods/{id}',
     handler: handler.putMemberDeliveryMethodByIdHandler,

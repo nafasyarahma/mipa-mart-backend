@@ -41,6 +41,21 @@ class DeliveryMethodsHandler {
     };
   }
 
+  async getMemberDeliveryMethodByIdHandler(request) {
+    const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+
+    await this._service.verifyDeliveryMethodMember(id, credentialId);
+    const deliveryMethod = await this._service.getMemberDeliveryMenthodById(id);
+
+    return {
+      status: 'success',
+      data: {
+        deliveryMethod,
+      },
+    };
+  }
+
   async putMemberDeliveryMethodByIdHandler(request) {
     this._validator.validatePutDeliveryMethodPayload(request.payload);
 

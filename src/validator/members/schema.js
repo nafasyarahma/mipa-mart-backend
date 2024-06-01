@@ -11,7 +11,7 @@ const MemberPayloadSchema = Joi.object({
   ktmImage: Joi.any().required(),
   whatsappNumber: Joi.string().regex(/^(0)8[1-9][0-9]{6,9}$/).required(),
   address: Joi.string().required(),
-  bio: [Joi.string(), Joi.allow(null)],
+  bio: [Joi.string(), Joi.allow(null, '')],
 });
 
 const PutMemberPayloadSchema = Joi.object({

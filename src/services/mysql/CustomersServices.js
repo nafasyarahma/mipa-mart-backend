@@ -75,7 +75,6 @@ class CustomersService {
         email: true,
         username: true,
         password: true,
-        email_verified: true,
       },
     });
 
@@ -84,7 +83,6 @@ class CustomersService {
       name,
       no_wa: whatsappNumber,
       address,
-      email_verified: true,
     };
 
     // jika email berbeda (diedit)

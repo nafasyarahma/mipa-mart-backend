@@ -9,11 +9,13 @@ const routes = (handler) => [
   },
   {
     method: 'GET',
-    path: '/admin/categories',
+    path: '/categories',
     handler: handler.getAllCategoryHandler,
-    options: {
-      auth: 'mipamart_jwt',
-    },
+  },
+  {
+    method: 'GET',
+    path: '/categories/{id}',
+    handler: handler.getCategoryByIdHandler,
   },
   {
     method: 'PUT',

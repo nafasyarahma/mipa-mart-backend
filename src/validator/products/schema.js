@@ -6,7 +6,7 @@ const ProductPayloadSchema = Joi.object({
   price: Joi.number().required(),
   status: Joi.string().valid('ready', 'preorder', 'soldout'),
   productImages: Joi.required(),
-  categoryId: Joi.string(),
+  categoryId: Joi.string().allow(null, '').optional(),
 });
 
 const ImageHeadersSchema = Joi.object({

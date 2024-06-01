@@ -29,9 +29,9 @@ class CategoriesHandler {
     return response;
   }
 
-  async getAllCategoryHandler(request) {
-    const { role: credentialRole } = request.auth.credentials;
-    await this._adminService.verifyRoleAdminScope(credentialRole);
+  async getAllCategoryHandler() {
+    // const { role: credentialRole } = request.auth.credentials;
+    // await this._adminService.verifyRoleAdminScope(credentialRole);
 
     const categories = await this._service.getAllCategories();
 
@@ -39,6 +39,19 @@ class CategoriesHandler {
       status: 'success',
       data: {
         categories,
+      },
+    };
+  }
+
+  async getCategoryByIdHandler(request) {
+    const { id } = request.params;
+
+    const category = await this._service.getCategoryById(id);
+
+    return {
+      status: 'success',
+      data: {
+        category,
       },
     };
   }

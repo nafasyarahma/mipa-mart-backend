@@ -108,7 +108,6 @@ class MembersService {
         email: true,
         username: true,
         password: true,
-        email_verified: true,
       },
     });
 
@@ -118,7 +117,6 @@ class MembersService {
       no_wa: whatsappNumber,
       address,
       bio,
-      email_verified: true,
     };
 
     // jika email berbeda (diedit)

@@ -80,6 +80,7 @@ const routes = (handler) => [
       auth: 'mipamart_jwt',
     },
   },
+  // + autentikasi admin
   {
     method: 'GET',
     path: '/upload/images/ktm/{param*}',
