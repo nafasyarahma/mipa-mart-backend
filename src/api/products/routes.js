@@ -38,6 +38,14 @@ const routes = (handler) => [
     },
   },
   {
+    method: 'PUT',
+    path: '/member/products/{id}/status',
+    handler: handler.putProductStatusByIdHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
+  {
     method: 'DELETE',
     path: '/member/products/{id}',
     handler: handler.deleteProductByIdHandler,

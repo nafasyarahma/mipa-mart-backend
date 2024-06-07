@@ -1,3 +1,5 @@
+/* eslint-disable no-cond-assign */
+/* eslint-disable no-restricted-syntax */
 const { PrismaClient } = require('@prisma/client');
 const { nanoid } = require('nanoid');
 const NotFoundError = require('../../exceptions/NotFoundError');
@@ -27,28 +29,40 @@ class CartsService {
     // dapatkan member_id dari product yang ditambahkan
     const productMemberId = product.member_id;
 
-    // periksa item di cart
-    const cartItem = await this._prisma.cartItem.findFirst({
-      where: {
-        customer_id: customerId,
-      },
-      include: {
-        product: true,
-      },
-    });
+    // // periksa item di cart
+    // const firstCartItem = await this._prisma.cartItem.findFirst({
+    //   where: {
+    //     customer_id: customerId,
+    //   },
+    //   include: {
+    //     product: true,
+    //   },
+    // });
 
-    // jika cart tidak kosong
-    if (cartItem) {
-      if (cartItem.product_id === productId) {
+    const { cartItems } = await this.getCarts();
+
+    for (const item of cartItems) {
+      if (item.product_id === productId) {
         throw new InvariantError('Produk sudah ada di keranjang');
       }
+    }
 
-      const cartMemberId = cartItem.product.member_id;
-      // Periksa apakah `member_id` produk yang ingin ditambahkan sesuai dengan `cartMemberId`
+    if (cartItems.length > 0) {
+      const cartMemberId = cartItems[0].product.member_id;
       if (productMemberId !== cartMemberId) {
         throw new InvariantError('Produk yang ditambahkan harus berasal dari penjual yang sama. Harap hapus terlebih dahulu produk dalam keranjang');
       }
     }
+
+    // // jika cart tidak kosong
+    // if (firstCartItem) {
+    //   const cartMemberId = firstCartItem.product.member_id;
+    //   // Periksa apakah `member_id` produk yang ingin ditambahkan sesuai dengan `cartMemberId`
+    //   if (productMemberId !== cartMemberId) {
+    //     throw new InvariantError('Produk yang ditambahkan harus berasal dari penjual yang sama.
+    // Harap hapus terlebih dahulu produk dalam keranjang');
+    //   }
+    // }
 
     const result = await this._prisma.cartItem.create({
       data: {
@@ -67,15 +81,39 @@ class CartsService {
 
   /* MENDAPATKAN PRODUK DALAM CART */
   async getCarts(customerId) {
-    const result = await this._prisma.cartItem.findMany({
+    const cartItems = await this._prisma.cartItem.findMany({
       where: {
         customer_id: customerId,
       },
       include: {
-        product: true,
+        product: {
+          include: {
+            images: {
+              select: {
+                url: true,
+              },
+            },
+          },
+        },
       },
     });
-    return result;
+
+    const processedResult = cartItems.map(item => {
+      if (item.product.images && item.product.images.length > 0) {
+        // eslint-disable-next-line no-param-reassign
+        item.product.images = item.product.images[0].url; // Hanya mengambil gambar pada indeks ke-0
+      }
+      return item;
+    });
+
+    const totalPrice = cartItems.reduce((prev, current) => {
+      return prev + (current.quantity * current.product.price);
+    }, 0);
+
+    return {
+      cartItems: processedResult,
+      totalPrice,
+    };
   }
 
   /* MENGUBAH JUMLAH PRODUK */

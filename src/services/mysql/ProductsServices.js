@@ -107,6 +107,14 @@ class ProductsService {
             url: true,
           },
         },
+        seller: {
+          select: {
+            email: true,
+            name: true,
+            no_wa: true,
+            address: true,
+          },
+        },
       },
     });
 
@@ -153,6 +161,25 @@ class ProductsService {
     }
 
     // dev mode
+    return result;
+  }
+
+  /* MENGUBAH STATUS PRODUK */
+  async editProductStatusById(id, { status }) {
+    await this.checkProductId(id);
+
+    const result = await this._prisma.product.update({
+      where: {
+        id,
+      },
+      data: {
+        status,
+      },
+    });
+
+    if (!result) {
+      throw new InvariantError('Gagal memperbarui status');
+    }
     return result;
   }
 

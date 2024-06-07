@@ -76,7 +76,7 @@ const routes = (handler) => [
   },
   {
     method: 'POST',
-    path: '/customer/reset-email/{token}',
+    path: '/customer/reset-password/{token}',
     handler: handler.resetCustomerPasswordHandler,
   },
 ];

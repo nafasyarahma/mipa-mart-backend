@@ -54,7 +54,7 @@ class PaymentMethodsHandler {
     };
   }
 
-  async getCartItemPaymentMethodsHandler(request) {
+  async getSellerPaymentMethodsHandler(request) {
     const { id: credentialId } = request.auth.credentials;
     const paymentMethods = await this._service.getPaymentMethodOfCartItemMember(credentialId);
 

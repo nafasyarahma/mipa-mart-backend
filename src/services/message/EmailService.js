@@ -43,7 +43,7 @@ class EmailService {
         from: process.env.EMAIL_USER,
         to: email,
         subject: 'Reset Password',
-        html: `<p>Please click <a href="http://${process.env.HOST}:${process.env.PORT}/${role}/reset-email/${token}">here</a> to change your password</p>`,
+        html: `<p>Please click <a href="http://${process.env.FE_PORT}/${role}/reset-password/${token}">here</a> to change your password</p>`,
       };
 
       await this._transporter.sendMail(mailOptions);

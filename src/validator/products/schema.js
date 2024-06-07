@@ -9,8 +9,12 @@ const ProductPayloadSchema = Joi.object({
   categoryId: Joi.string().allow(null, '').optional(),
 });
 
+const ProductStatusPayloadSchema = Joi.object({
+  status: Joi.string().valid('ready', 'preorder', 'soldout'),
+});
+
 const ImageHeadersSchema = Joi.object({
   'content-type': Joi.string().valid('image/apng', 'image/avif', 'image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/webp').required(),
 }).unknown();
 
-module.exports = { ProductPayloadSchema, ImageHeadersSchema };
+module.exports = { ProductPayloadSchema, ImageHeadersSchema, ProductStatusPayloadSchema };

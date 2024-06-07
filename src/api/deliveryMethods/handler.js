@@ -83,6 +83,18 @@ class DeliveryMethodsHandler {
       message: 'Berhasil menghapus metode pengiriman',
     };
   }
+
+  async getSellerDeliveryMethodsHandler(request) {
+    const { id: credentialId } = request.auth.credentials;
+    const deliveryMethods = await this._service.getDeliveryMethodOfCartItemMember(credentialId);
+
+    return {
+      status: 'success',
+      data: {
+        deliveryMethods,
+      },
+    };
+  }
 }
 
 module.exports = DeliveryMethodsHandler;

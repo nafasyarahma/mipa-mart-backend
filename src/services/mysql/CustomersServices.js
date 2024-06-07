@@ -169,15 +169,20 @@ class CustomersService {
 
   // Mengecek email di db
   async checkCustomerEmail(email) {
-    const customerEmail = await this._prisma.customer.findUnique({
+    const result = await this._prisma.customer.findUnique({
       where: {
         email,
       },
+      select: {
+        email: true,
+        id: true,
+      },
     });
 
-    if (!customerEmail) {
+    if (!result) {
       throw new NotFoundError('Email Tidak Ditemukan');
     }
+    return result;
   }
 
   // Memverifikasi kredensial customer (kesesuaian uname/pw)

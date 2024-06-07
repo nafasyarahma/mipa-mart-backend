@@ -2,9 +2,9 @@ const Joi = require('joi');
 
 const OrderPayloadSchema = Joi.object({
   paymentMethodId: Joi.string().required(),
-  paymentImage: Joi.allow(null),
+  paymentImage: Joi.allow(null, ''),
   deliveryMethodId: Joi.string().required(),
-  note: [Joi.string(), Joi.allow(null)],
+  note: [Joi.string(), Joi.allow(null, '')],
 });
 
 const OrderStatusPayloadSchema = Joi.object({

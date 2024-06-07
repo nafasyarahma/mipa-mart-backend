@@ -39,6 +39,16 @@ const routes = (handler) => [
       auth: 'mipamart_jwt',
     },
   },
+
+  // CUSTOMER
+  {
+    method: 'GET',
+    path: '/customer/order/delivery-methods',
+    handler: handler.getSellerDeliveryMethodsHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
 ];
 
 module.exports = routes;

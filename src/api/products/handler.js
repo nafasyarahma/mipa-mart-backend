@@ -103,6 +103,21 @@ class ProductsHandler {
     };
   }
 
+  async putProductStatusByIdHandler(request) {
+    this._validator.validateProductStatusPayload(request.payload);
+
+    const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+
+    await this._service.verifyProductMember(id, credentialId);
+    await this._service.editProductStatusById(id, request.payload);
+
+    return {
+      status: 'success',
+      message: 'Berhasil memperbarui status produk',
+    };
+  }
+
   async deleteProductByIdHandler(request) {
     const { id } = request.params;
     const { id: credentialId } = request.auth.credentials;

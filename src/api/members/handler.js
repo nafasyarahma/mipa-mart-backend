@@ -172,7 +172,7 @@ class MembersHandler {
   }
 
   async memberForgotPasswordHandler(request) {
-    await this._service.validateForgotPasswordPayload(request.payload);
+    await this._validator.validateForgotPasswordPayload(request.payload);
     const { email } = request.payload;
 
     const memberData = await this._service.checkMemberEmail(email);

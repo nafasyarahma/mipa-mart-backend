@@ -19,7 +19,10 @@ class OrdersHandler {
     const { id: credentialId } = request.auth.credentials;
 
     await this._validator.validateOrderPayload(request.payload);
-    await this._validator.validatePaymentImageHeaders(paymentImage.hapi.headers);
+
+    if (paymentImage && paymentImage.hapi && paymentImage.hapi.headers) {
+      await this._validator.validatePaymentImageHeaders(paymentImage.hapi.headers);
+    }
 
     await this._paymentMethodsService.verifyPaymentMethod({
       customerId: credentialId, paymentMethodId,

@@ -124,6 +124,31 @@ class DeliveryMethodsService {
       throw new AuthorizationError('Anda tidak dapat memilih metode pengiriman ini');
     }
   }
+
+  async getDeliveryMethodOfCartItemMember(customerId) {
+    const cartItem = await this._prisma.cartItem.findFirst({
+      where: {
+        customer_id: customerId,
+      },
+      include: {
+        product: true,
+      },
+    });
+
+    if (!cartItem || !cartItem.product) {
+      throw new NotFoundError('Keranjang kosong');
+    }
+
+    // jika ada item, dapatkan data member_id dari produk pertama di keranjang
+    const cartMemberId = cartItem.product.member_id;
+
+    const deliveryMethods = await this._prisma.deliveryMethod.findMany({
+      where: {
+        member_id: cartMemberId,
+      },
+    });
+    return deliveryMethods;
+  }
 }
 
 module.exports = DeliveryMethodsService;

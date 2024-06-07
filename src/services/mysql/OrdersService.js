@@ -93,6 +93,10 @@ class OrdersService {
       where: {
         member_id: memberId,
       },
+      include: {
+        payment_method: true,
+        delivery_method: true,
+      },
     });
 
     return result;
@@ -100,18 +104,61 @@ class OrdersService {
 
   /* MENDAPATKAN DETAIL ORDER */
   async getOrderById(id) {
-    const result = await this._prisma.order.findUnique({
+    const order = await this._prisma.order.findUnique({
       where: {
         id,
       },
       include: {
-        products: true,
+        products: {
+          include: {
+            product: {
+              select: {
+                name: true,
+                price: true,
+                images: {
+                  select: {
+                    url: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        payment_method: true,
+        delivery_method: true,
+        member: {
+          select: {
+            name: true,
+            email: true,
+            no_wa: true,
+            address: true,
+          },
+        },
+        customer: {
+          select: {
+            name: true,
+            email: true,
+            no_wa: true,
+            address: true,
+          },
+        },
       },
     });
-    if (!result) {
+
+    const orderProducts = order.products;
+
+    orderProducts.map(item => {
+      if (item.product.images && item.product.images.length > 0) {
+        // eslint-disable-next-line no-param-reassign
+        item.product.images = item.product.images[0].url; // Hanya mengambil gambar pada indeks ke-0
+      }
+      return item;
+    });
+
+    if (!order) {
       throw new NotFoundError('Pesanan tidak ditemukan');
     }
-    return result;
+    return order;
   }
 
   /* MENGUBAH STATUS ORDER */
