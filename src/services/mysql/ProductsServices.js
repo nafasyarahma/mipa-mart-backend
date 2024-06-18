@@ -54,18 +54,30 @@ class ProductsService {
       where: {
         member_id: memberId,
       },
+      include: {
+        category: true,
+      },
     });
     return result;
   }
 
   /* MENDAPATKAN SEMUA PRODUK */
-  async getAllProducts({ name }) {
+  async getAllProducts({ name, category }) {
     const whereClause = {};
     if (name) {
       whereClause.name = {
         contains: name, // Filter berdasarkan nama (menggunakan pencarian "contains")
       };
     }
+
+    if (category) {
+      whereClause.category = {
+        name: {
+          equals: category, // Filter berdasarkan kategori menggunakan pencarian "contains"
+        },
+      };
+    }
+
     const result = await this._prisma.product.findMany({
       where: whereClause,
       include: {
@@ -139,7 +151,7 @@ class ProductsService {
 
   /* MENGEDIT DETAIL PRODUK */
   async editProductById(id, {
-    name, description, price, status, productImages,
+    name, description, price, status, productImages, categoryId,
   }) {
     // Hapus gambar-gambar lama terkait dengan produk
     await this.deleteProductFromStorage(id);
@@ -147,13 +159,23 @@ class ProductsService {
     // Tambahkan gambar-gambar baru
     await this.addProductImages(productImages, id);
 
+    const updateData = {
+      name,
+      description,
+      price,
+      status,
+    };
+
+    // Perbarui category_id hanya jika categoryId dikirim
+    if (categoryId !== undefined) {
+      updateData.category_id = categoryId || null;
+    }
+
     const result = await this._prisma.product.update({
       where: {
         id,
       },
-      data: {
-        name, description, price, status,
-      },
+      data: updateData,
     });
 
     if (!result) {

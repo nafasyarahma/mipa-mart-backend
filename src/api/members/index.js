@@ -1,4 +1,4 @@
-const MembersService = require('./handler');
+const MembersHandler = require('./handler');
 const routes = require('./routes');
 
 module.exports = {
@@ -8,7 +8,7 @@ module.exports = {
     service, adminService, emailService, validator,
   }) => {
     const membersHandler =
-    new MembersService(service, adminService, emailService, validator);
+    new MembersHandler(service, adminService, emailService, validator);
     server.route(routes(membersHandler));
   },
 };
