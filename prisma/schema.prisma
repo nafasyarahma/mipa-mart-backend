@@ -40,7 +40,6 @@ model Product {
   member_id   String        @db.VarChar(255)
 
   cartItems CartItem[]
-  orders OrderProduct[]
 
   @@map("products")
 }
@@ -86,8 +85,6 @@ model PaymentMethod {
   member      Member      @relation(fields: [member_id], references: [id], onDelete: Cascade)  
   member_id   String      @db.VarChar(255)
 
-  orders Order[]
-
   @@map("payment_methods")   
 }
 
@@ -97,8 +94,6 @@ model DeliveryMethod {
   description String?     @db.VarChar(255)
   member      Member      @relation(fields: [member_id], references: [id], onDelete: Cascade)  
   member_id   String      @db.VarChar(255)
-
-  orders Order[]
 
   @@map("delivery_methods") 
 }
@@ -139,32 +134,53 @@ model Order {
   member_id           String          @db.VarChar(255)
   member              Member          @relation(fields: [member_id], references: [id], onDelete: Cascade)  
   total_price         Decimal         @db.Decimal(10, 2)
-  payment_method_id   String          @db.VarChar(255)
-  payment_method      PaymentMethod   @relation(fields: [payment_method_id], references: [id])
-  payment_image       String?         @db.VarChar(255)
-  delivery_method_id  String          @db.VarChar(255)
-  delivery_method     DeliveryMethod  @relation(fields: [delivery_method_id], references: [id])
   note                String?         @db.Text
-  status              OrderStatus     @default(pending)
+  payment_image       String?         @db.Text
+  order_status        OrderStatus     @default(pending)
+  payment_status      PaymentStatus   @default(checking)
   created_at          DateTime        @default(now())
   updated_at          DateTime        @updatedAt
 
   products OrderProduct[]
+  payment_method   OrderPaymentMethod?
+  delivery_method  OrderDeliveryMethod?
 }
 
 model OrderProduct {
   id            String      @id @default(uuid())
   order_id      String      @db.VarChar(255)
-  order         Order       @relation(fields: [order_id], references: [id])
-  product_id    String      @db.VarChar(255)
-  product       Product     @relation(fields: [product_id], references: [id])
+  order         Order       @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  name          String      @db.VarChar(255)
+  price         Decimal     @db.Decimal(10, 2)
+  image         String      @db.VarChar(255)
   quantity      Int
 
   @@map("order_products")
 }
 
+model OrderPaymentMethod {
+  id           String  @id @default(uuid())
+  order_id     String  @db.VarChar(255) @unique
+  order        Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  provider     String  @db.VarChar(255)
+  no_account   String  @db.VarChar(255)
+  name         String  @db.VarChar(255)
+
+  @@map("order_payment_methods")
+}
+
+model OrderDeliveryMethod {
+  id           String  @id @default(uuid())
+  order_id     String  @db.VarChar(255) @unique
+  order        Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  method       String  @db.VarChar(255)
+  description  String  @db.VarChar(255)
+
+  @@map("order_delivery_methods")
+}
+
 model Admin {
-  id          String       @id @db.VarChar(255)
+  id           String      @id @db.VarChar(255)
   username     String      @unique @db.VarChar(255)
   password     String      @db.VarChar(255)
   created_at   DateTime    @default(now())
@@ -197,4 +213,10 @@ enum OrderStatus {
   rejected
   canceled
   completed
+}
+
+enum PaymentStatus {
+  checking
+  paid
+  unpaid
 }

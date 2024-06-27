@@ -16,6 +16,7 @@ class OrdersHandler {
     const {
       paymentMethodId, paymentImage, deliveryMethodId, note,
     } = request.payload;
+
     const { id: credentialId } = request.auth.credentials;
 
     await this._validator.validateOrderPayload(request.payload);
@@ -27,9 +28,12 @@ class OrdersHandler {
     await this._paymentMethodsService.verifyPaymentMethod({
       customerId: credentialId, paymentMethodId,
     });
-    await this._deliveryMethodsService.verifyDeliveryMethod({
-      customerId: credentialId, deliveryMethodId,
-    });
+
+    if (deliveryMethodId) {
+      await this._deliveryMethodsService.verifyDeliveryMethod({
+        customerId: credentialId, deliveryMethodId,
+      });
+    }
 
     const order = await this._service.createOrder({
       customerId: credentialId, paymentMethodId, paymentImage, deliveryMethodId, note,
@@ -54,6 +58,18 @@ class OrdersHandler {
       status: 'success',
       data: {
         orders,
+      },
+    };
+  }
+
+  async getCustomerOrderHistoryHandler(request) {
+    const { id: credentialId } = request.auth.credentials;
+    const historyOrders = await this._service.getCustomerOrderHistory(credentialId);
+
+    return {
+      status: 'success',
+      data: {
+        historyOrders,
       },
     };
   }
@@ -83,6 +99,18 @@ class OrdersHandler {
       status: 'success',
       data: {
         orders,
+      },
+    };
+  }
+
+  async getMemberOrderHistoryHandler(request) {
+    const { id: credentialId } = request.auth.credentials;
+    const historyOrders = await this._service.getMemberOrderHistory(credentialId);
+
+    return {
+      status: 'success',
+      data: {
+        historyOrders,
       },
     };
   }

@@ -1,4 +1,5 @@
 const routes = (handler) => [
+  // admin
   {
     method: 'POST',
     path: '/admin/categories',
@@ -6,16 +7,6 @@ const routes = (handler) => [
     options: {
       auth: 'mipamart_jwt',
     },
-  },
-  {
-    method: 'GET',
-    path: '/categories',
-    handler: handler.getAllCategoryHandler,
-  },
-  {
-    method: 'GET',
-    path: '/categories/{id}',
-    handler: handler.getCategoryByIdHandler,
   },
   {
     method: 'PUT',
@@ -32,6 +23,18 @@ const routes = (handler) => [
     options: {
       auth: 'mipamart_jwt',
     },
+  },
+
+  // public
+  {
+    method: 'GET',
+    path: '/categories',
+    handler: handler.getAllCategoryHandler,
+  },
+  {
+    method: 'GET',
+    path: '/categories/{id}',
+    handler: handler.getCategoryByIdHandler,
   },
 ];
 

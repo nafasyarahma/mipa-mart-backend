@@ -22,7 +22,11 @@ class OrdersService {
           customer_id: customerId,
         },
         include: {
-          product: true,
+          product: {
+            include: {
+              images: true,
+            },
+          },
         },
       });
 
@@ -39,27 +43,67 @@ class OrdersService {
         return prev + (current.quantity * current.product.price);
       }, 0);
 
+      // Mengunggah gambar pembayaran jika ada
       const paymentImageUrl = await this.handlePaymentImage(paymentImage);
 
-      // buat order dan product order
+      // Membuat order baru
       const order = await tx.order.create({
         data: {
           id,
           customer_id: customerId,
           member_id: memberId,
           total_price: price,
-          payment_method_id: paymentMethodId,
           payment_image: paymentImageUrl,
-          delivery_method_id: deliveryMethodId,
           note,
-          products: {
-            create: cartItems.map(cart => {
-              return {
-                product_id: cart.product_id,
-                quantity: cart.quantity,
-              };
-            }),
-          },
+        },
+      });
+
+      // Menambahkan produk ke tabel order produk
+      const orderProducts = cartItems.map(cart => ({
+        order_id: id,
+        name: cart.product.name,
+        price: cart.product.price,
+        image: cart.product.images[0].url,
+        quantity: cart.quantity,
+      }));
+      await tx.orderProduct.createMany({ data: orderProducts });
+
+      // Mengambil data metode pembayaran
+      const paymentMethod = await tx.paymentMethod.findUnique({
+        where: {
+          id: paymentMethodId,
+        },
+      });
+
+      if (!paymentMethod) {
+        throw new NotFoundError('Metode pembayaran tidak ditemukan.');
+      }
+
+      await tx.orderPaymentMethod.create({
+        data: {
+          order_id: id,
+          provider: paymentMethod.provider,
+          no_account: paymentMethod.no_account,
+          name: paymentMethod.name,
+        },
+      });
+
+      // Mengambil data metode pengririman
+      const deliveryMethod = await tx.deliveryMethod.findUnique({
+        where: {
+          id: deliveryMethodId,
+        },
+      });
+
+      if (!deliveryMethod) {
+        throw new NotFoundError('Metode pengiriman tidak ditemukan.');
+      }
+
+      await tx.orderDeliveryMethod.create({
+        data: {
+          order_id: id,
+          method: deliveryMethod.method,
+          description: deliveryMethod.description,
         },
       });
 
@@ -69,10 +113,10 @@ class OrdersService {
         },
       });
 
-      if (!order) {
+      if (!order.id) {
         throw new InvariantError('Gagal membuat order');
       }
-      return order;
+      return order.id;
     });
   }
 
@@ -81,17 +125,50 @@ class OrdersService {
     const result = await this._prisma.order.findMany({
       where: {
         customer_id: customerId,
+        order_status: {
+          not: 'completed',
+        },
       },
     });
 
     return result;
   }
 
-  /* MENDAPATKAN SEMUA ORDER YANG DIMILIKI MEMBER */
+  async getCustomerOrderHistory(customerId) {
+    const result = await this._prisma.order.findMany({
+      where: {
+        customer_id: customerId,
+        order_status: 'completed',
+      },
+
+    });
+    return result;
+  }
+
+  /* MENDAPATKAN SEMUA ORDER MEMBER */
   async getMemberOrderList(memberId) {
     const result = await this._prisma.order.findMany({
       where: {
         member_id: memberId,
+        order_status: {
+          not: 'completed',
+        },
+      },
+      include: {
+        payment_method: true,
+        delivery_method: true,
+      },
+    });
+
+    return result;
+  }
+
+  /* MENDAPATKAN SEMUA ORDER MEMBER DENGAN STATUS COMPLETED */
+  async getMemberOrderHistory(memberId) {
+    const result = await this._prisma.order.findMany({
+      where: {
+        member_id: memberId,
+        order_status: 'completed',
       },
       include: {
         payment_method: true,
@@ -109,21 +186,7 @@ class OrdersService {
         id,
       },
       include: {
-        products: {
-          include: {
-            product: {
-              select: {
-                name: true,
-                price: true,
-                images: {
-                  select: {
-                    url: true,
-                  },
-                },
-              },
-            },
-          },
-        },
+        products: true,
         payment_method: true,
         delivery_method: true,
         member: {
@@ -145,16 +208,6 @@ class OrdersService {
       },
     });
 
-    const orderProducts = order.products;
-
-    orderProducts.map(item => {
-      if (item.product.images && item.product.images.length > 0) {
-        // eslint-disable-next-line no-param-reassign
-        item.product.images = item.product.images[0].url; // Hanya mengambil gambar pada indeks ke-0
-      }
-      return item;
-    });
-
     if (!order) {
       throw new NotFoundError('Pesanan tidak ditemukan');
     }
@@ -168,7 +221,7 @@ class OrdersService {
         id,
       },
       data: {
-        status,
+        order_status: status,
       },
     });
 

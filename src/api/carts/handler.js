@@ -20,7 +20,7 @@ class CartsHandler {
 
     const response = h.response({
       status: 'success',
-      message: 'Berhasil menambahkan item ke cart',
+      message: 'Berhasil menambahkan item ke keranjang',
       data: {
         cartItemId,
       },

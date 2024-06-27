@@ -33,6 +33,14 @@ const routes = (handler) => [
   },
   {
     method: 'GET',
+    path: '/customer/orders/history',
+    handler: handler.getCustomerOrderHistoryHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
+  {
+    method: 'GET',
     path: '/upload/images/payment/{param*}',
     handler: {
       directory: {
@@ -61,6 +69,14 @@ const routes = (handler) => [
     method: 'GET',
     path: '/member/orders/{id}',
     handler: handler.getMemberOrderDetailHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
+  {
+    method: 'GET',
+    path: '/member/orders/history',
+    handler: handler.getMemberOrderHistoryHandler,
     options: {
       auth: 'mipamart_jwt',
     },
