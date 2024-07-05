@@ -89,6 +89,19 @@ class OrdersHandler {
     };
   }
 
+  async completeOrderHandler(request) {
+    const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+
+    await this._service.verifyOrderCustomer(id, credentialId);
+    await this._service.changeOrderStatus(id, { orderStatus: 'completed' });
+
+    return {
+      status: 'success',
+      message: 'Pesanan selesai!',
+    };
+  }
+
   /* ================================ MEMBER SCOPE ================================ */
 
   async getMemberOrderListHandler(request) {
@@ -141,6 +154,23 @@ class OrdersHandler {
     return {
       status: 'success',
       message: 'Berhasil memperbarui status order',
+      data: {
+        order,
+      },
+    };
+  }
+
+  async changePaymentStatusHandler(request) {
+    const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+
+    await this._validator.validatePaymentStatusPayload(request.payload);
+    await this._service.verifyOrderMember(id, credentialId);
+    const order = await this._service.changePaymentStatus(id, request.payload);
+
+    return {
+      status: 'success',
+      message: 'Berhasil memperbarui status pembayaran',
       data: {
         order,
       },

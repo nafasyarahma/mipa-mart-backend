@@ -10,7 +10,7 @@ const routes = (handler) => [
         allow: 'multipart/form-data',
         multipart: true,
         output: 'stream',
-        maxBytes: 100485760,
+        maxBytes: 10485760,
       },
       auth: 'mipamart_jwt',
     },
@@ -40,6 +40,14 @@ const routes = (handler) => [
     },
   },
   {
+    method: 'PUT',
+    path: '/customer/orders/{id}/complete',
+    handler: handler.completeOrderHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
+  {
     method: 'GET',
     path: '/upload/images/payment/{param*}',
     handler: {
@@ -61,6 +69,14 @@ const routes = (handler) => [
     method: 'PUT',
     path: '/member/orders/{id}/status',
     handler: handler.changeOrderStatusHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
+  {
+    method: 'PUT',
+    path: '/member/orders/{id}/payment-status',
+    handler: handler.changePaymentStatusHandler,
     options: {
       auth: 'mipamart_jwt',
     },

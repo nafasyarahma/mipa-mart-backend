@@ -1,5 +1,10 @@
 const InvariantError = require('../../exceptions/InvariantError');
-const { OrderPayloadSchema, OrderStatusPayloadSchema, PaymentImageHeadersSchema } = require('./schema');
+const {
+  OrderPayloadSchema,
+  OrderStatusPayloadSchema,
+  PaymentStatusPayloadSchema,
+  PaymentImageHeadersSchema,
+} = require('./schema');
 
 const OrdersValidator = {
   validateOrderPayload: (payload) => {
@@ -11,6 +16,13 @@ const OrdersValidator = {
 
   validateOrderStatusPayload: (payload) => {
     const validationResult = OrderStatusPayloadSchema.validate(payload);
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+
+  validatePaymentStatusPayload: (payload) => {
+    const validationResult = PaymentStatusPayloadSchema.validate(payload);
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message);
     }

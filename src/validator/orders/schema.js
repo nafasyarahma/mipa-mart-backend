@@ -8,11 +8,20 @@ const OrderPayloadSchema = Joi.object({
 });
 
 const OrderStatusPayloadSchema = Joi.object({
-  status: Joi.string().valid('pending', 'accepted', 'rejected', 'completed'),
+  orderStatus: Joi.string().valid('accepted', 'rejected', 'completed'),
+});
+
+const PaymentStatusPayloadSchema = Joi.object({
+  paymentStatus: Joi.string().valid('paid', 'unpaid'),
 });
 
 const PaymentImageHeadersSchema = Joi.object({
   'content-type': Joi.string().valid('image/jpg', 'image/jpeg', 'image/png'),
 }).unknown();
 
-module.exports = { OrderPayloadSchema, OrderStatusPayloadSchema, PaymentImageHeadersSchema };
+module.exports = {
+  OrderPayloadSchema,
+  OrderStatusPayloadSchema,
+  PaymentStatusPayloadSchema,
+  PaymentImageHeadersSchema,
+};

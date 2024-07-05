@@ -215,18 +215,35 @@ class OrdersService {
   }
 
   /* MENGUBAH STATUS ORDER */
-  async changeOrderStatus(id, { status }) {
+  async changeOrderStatus(id, { orderStatus }) {
     const result = await this._prisma.order.update({
       where: {
         id,
       },
       data: {
-        order_status: status,
+        order_status: orderStatus,
       },
     });
 
     if (!result) {
       throw new InvariantError('Gagal memperbarui status');
+    }
+    return result;
+  }
+
+  /* MENGUBAH STATUS PEMBAYARAN */
+  async changePaymentStatus(id, { paymentStatus }) {
+    const result = await this._prisma.order.update({
+      where: {
+        id,
+      },
+      data: {
+        payment_status: paymentStatus,
+      },
+    });
+
+    if (!result) {
+      throw new InvariantError('Gagal memperbarui status pembayaran');
     }
     return result;
   }

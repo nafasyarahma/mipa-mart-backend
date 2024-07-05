@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 const nodemailer = require('nodemailer');
 const jwt = require('@hapi/jwt');
+const InvariantError = require('../../exceptions/InvariantError');
 require('dotenv').config();
 
 class EmailService {
@@ -61,7 +62,7 @@ class EmailService {
       const { payload } = artifacts.decoded;
       return payload;
     } catch (error) {
-      throw new Error(error);
+      throw new InvariantError('Token tidak valid');
     }
   }
 }
