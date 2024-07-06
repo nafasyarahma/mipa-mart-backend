@@ -16,6 +16,14 @@ const routes = (handler) => [
     },
   },
   {
+    method: 'GET',
+    path: '/customer/carts/{id}',
+    handler: handler.getCartByIdHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
+  {
     method: 'PUT',
     path: '/customer/carts/item/{id}',
     handler: handler.putQuantityHandler,

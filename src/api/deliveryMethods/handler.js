@@ -85,8 +85,9 @@ class DeliveryMethodsHandler {
   }
 
   async getSellerDeliveryMethodsHandler(request) {
-    const { id: credentialId } = request.auth.credentials;
-    const deliveryMethods = await this._service.getDeliveryMethodOfCartItemMember(credentialId);
+    const { cartId } = request.params;
+
+    const deliveryMethods = await this._service.getDeliveryMethodMemberByCartId(cartId);
 
     return {
       status: 'success',

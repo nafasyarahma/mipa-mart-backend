@@ -125,26 +125,18 @@ class DeliveryMethodsService {
     }
   }
 
-  async getDeliveryMethodOfCartItemMember(customerId) {
-    const cartItem = await this._prisma.cartItem.findFirst({
+  async getDeliveryMethodMemberByCartId(cartId) {
+    const cart = await this._prisma.cart.findUnique({
       where: {
-        customer_id: customerId,
-      },
-      include: {
-        product: true,
+        id: cartId,
       },
     });
 
-    if (!cartItem || !cartItem.product) {
-      throw new NotFoundError('Keranjang kosong');
-    }
-
-    // jika ada item, dapatkan data member_id dari produk pertama di keranjang
-    const cartMemberId = cartItem.product.member_id;
+    const memberId = cart.member_id;
 
     const deliveryMethods = await this._prisma.deliveryMethod.findMany({
       where: {
-        member_id: cartMemberId,
+        member_id: memberId,
       },
     });
     return deliveryMethods;

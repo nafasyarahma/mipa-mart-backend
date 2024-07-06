@@ -14,7 +14,7 @@ class CartsHandler {
     const { productId, quantity } = request.payload;
     const { id: credentialId } = request.auth.credentials;
 
-    const cartItemId = await this._service.addItemToCart({
+    const cartId = await this._service.addItemToCart({
       customerId: credentialId, productId, quantity,
     });
 
@@ -22,7 +22,7 @@ class CartsHandler {
       status: 'success',
       message: 'Berhasil menambahkan item ke keranjang',
       data: {
-        cartItemId,
+        cartId,
       },
     });
     response.code(201);
@@ -38,6 +38,21 @@ class CartsHandler {
       status: 'success',
       data: {
         carts,
+      },
+    };
+  }
+
+  async getCartByIdHandler(request) {
+    const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+
+    await this._service.verifyCartCustomer(id, credentialId);
+    const cart = await this._service.getCartById(id);
+
+    return {
+      status: 'success',
+      data: {
+        cart,
       },
     };
   }

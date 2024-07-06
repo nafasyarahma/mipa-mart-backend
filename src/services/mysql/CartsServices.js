@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-cond-assign */
 /* eslint-disable no-restricted-syntax */
 const { PrismaClient } = require('@prisma/client');
@@ -13,8 +14,6 @@ class CartsService {
 
   /* MENAMBAHKAN PRODUK KE KERANJANG */
   async addItemToCart({ customerId, productId, quantity }) {
-    const id = `cartitem-${nanoid(16)}`;
-
     // periksa apakah produk yang ditambahkan ada di db
     const product = await this._prisma.product.findFirst({
       where: {
@@ -27,70 +26,85 @@ class CartsService {
     }
 
     // dapatkan member_id dari product yang ditambahkan
-    const productMemberId = product.member_id;
+    const memberId = product.member_id;
 
-    // // periksa item di cart
-    // const firstCartItem = await this._prisma.cartItem.findFirst({
-    //   where: {
-    //     customer_id: customerId,
-    //   },
-    //   include: {
-    //     product: true,
-    //   },
-    // });
-
-    const { cartItems } = await this.getCarts();
-
-    for (const item of cartItems) {
-      if (item.product_id === productId) {
-        throw new InvariantError('Produk sudah ada di keranjang');
-      }
-    }
-
-    if (cartItems.length > 0) {
-      const cartMemberId = cartItems[0].product.member_id;
-      if (productMemberId !== cartMemberId) {
-        throw new InvariantError('Produk yang ditambahkan harus berasal dari penjual yang sama. Harap hapus terlebih dahulu produk dalam keranjang');
-      }
-    }
-
-    // // jika cart tidak kosong
-    // if (firstCartItem) {
-    //   const cartMemberId = firstCartItem.product.member_id;
-    //   // Periksa apakah `member_id` produk yang ingin ditambahkan sesuai dengan `cartMemberId`
-    //   if (productMemberId !== cartMemberId) {
-    //     throw new InvariantError('Produk yang ditambahkan harus berasal dari penjual yang sama.
-    // Harap hapus terlebih dahulu produk dalam keranjang');
-    //   }
-    // }
-
-    const result = await this._prisma.cartItem.create({
-      data: {
-        id,
+    // Temukan keranjang dengan member dan customer yang sama
+    let cart = await this._prisma.cart.findFirst({
+      where: {
         customer_id: customerId,
-        product_id: productId,
-        quantity,
+        member_id: memberId,
+      },
+      include: {
+        cartItems: true,
       },
     });
 
-    if (!result.id) {
-      throw new InvariantError('Gagal menambahkan produk ke keranjang');
+    // Jika tidak ada, buat keranjang baru
+    if (!cart) {
+      const cartId = `cart-${nanoid(16)}`;
+      cart = await this._prisma.cart.create({
+        data: {
+          id: cartId,
+          customer_id: customerId,
+          member_id: memberId,
+          total_price: 0,
+        },
+      });
     }
-    return result.id;
+
+    if (!cart.cartItems) {
+      cart.cartItems = [];
+    }
+
+    // periksa apakah produk sudah ada di keranjang
+    const existingItem = cart.cartItems.find(item => item.product_id === productId);
+
+    // jika produk ada, tambah kuantitas
+    if (existingItem) {
+      await this._prisma.cartItem.update({
+        where: {
+          id: existingItem.id,
+        },
+        data: {
+          quantity: {
+            increment: quantity,
+          },
+        },
+      });
+    } else {
+      // jika produk belum ada, tambahkan
+      await this._prisma.cartItem.create({
+        data: {
+          id: `cartitem-${nanoid(16)}`,
+          cart_id: cart.id,
+          product_id: productId,
+          quantity,
+        },
+      });
+    }
+
+    await this.updateCartTotalPrice(cart.id);
+
+    return cart.id;
   }
 
-  /* MENDAPATKAN PRODUK DALAM CART */
+  /* MENDAPATKAN SEMUA CART */
   async getCarts(customerId) {
-    const cartItems = await this._prisma.cartItem.findMany({
+    const carts = await this._prisma.cart.findMany({
       where: {
         customer_id: customerId,
       },
       include: {
-        product: {
+        member: {
+          select: {
+            name: true,
+          },
+        },
+        cartItems: {
           include: {
-            images: {
-              select: {
-                url: true,
+            product: {
+              include: {
+                images: true,
               },
             },
           },
@@ -98,22 +112,51 @@ class CartsService {
       },
     });
 
-    const processedResult = cartItems.map(item => {
-      if (item.product.images && item.product.images.length > 0) {
-        // eslint-disable-next-line no-param-reassign
-        item.product.images = item.product.images[0].url; // Hanya mengambil gambar pada indeks ke-0
-      }
-      return item;
+    const processedResult = carts.map(cart => {
+      cart.cartItems.map(item => {
+        if (item.product.images.length > 0) {
+          item.product.images = item.product.images[0].url;
+        }
+        return item;
+      });
+      return cart;
     });
 
-    const totalPrice = cartItems.reduce((prev, current) => {
-      return prev + (current.quantity * current.product.price);
-    }, 0);
+    return processedResult;
+  }
 
-    return {
-      cartItems: processedResult,
-      totalPrice,
-    };
+  /* MENDAPATKAN CART BY ID */
+  async getCartById(id) {
+    const cart = await this._prisma.cart.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        cartItems: {
+          include: {
+            product: {
+              include: {
+                images: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!cart) {
+      throw new InvariantError('Keranjang tidak ditemukan');
+    }
+
+    // const processedResult = cart.cartItems.map(item => {
+    //   if (item.product.images.length > 0) {
+    //     item.product.images = item.product.images[0].url;
+    //   }
+    //   return item;
+    // });
+    // console.log(processedResult)
+
+    return cart;
   }
 
   /* MENGUBAH JUMLAH PRODUK */
@@ -130,33 +173,113 @@ class CartsService {
     if (!result) {
       throw new InvariantError('Gagal memperbarui kuantitas');
     }
+
+    await this.updateCartTotalPrice(result.cart_id);
   }
 
   /* MENGHAPUS ITEM DARI CART */
   async removeItemFromCart(id) {
-    await this._prisma.cartItem.delete({
+    const cartItem = await this._prisma.cartItem.findUnique({
       where: {
         id,
       },
+      select: {
+        id: true,
+        cart_id: true,
+      },
     });
+
+    if (!cartItem) {
+      throw new NotFoundError('Item tidak ditemukan');
+    }
+
+    await this._prisma.cartItem.delete({
+      where: {
+        id: cartItem.id,
+      },
+    });
+
+    const cartId = cartItem.cart_id;
+    await this.updateCartTotalPrice(cartId);
+
+    const currentItems = await this._prisma.cartItem.findMany({
+      where: {
+        cart_id: cartId,
+      },
+    });
+
+    if (currentItems.length === 0) {
+      await this._prisma.cart.delete({
+        where: {
+          id: cartId,
+        },
+      });
+    }
   }
 
   async verifyCartItemCustomer(id, customerId) {
-    const result = await this._prisma.cartItem.findUnique({
+    const item = await this._prisma.cartItem.findUnique({
       where: {
         id,
       },
     });
 
-    if (!result) {
+    if (!item) {
       throw new NotFoundError('Item tidak ditemukan pada cart');
     }
 
-    const cartItemCustoner = result.customer_id;
+    const cartId = item.cart_id;
 
-    if (cartItemCustoner !== customerId) {
+    const cart = await this._prisma.cart.findUnique({
+      where: {
+        id: cartId,
+      },
+    });
+
+    const cartCustomerId = cart.customer_id;
+
+    if (cartCustomerId !== customerId) {
       throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
     }
+  }
+
+  async verifyCartCustomer(id, customerId) {
+    const cart = await this._prisma.cart.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    const cartCustomerId = cart.customer_id;
+
+    if (cartCustomerId !== customerId) {
+      throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
+    }
+  }
+
+  async updateCartTotalPrice(cartId) {
+    // perbarui total harga keranjang
+    const cartItems = await this._prisma.cartItem.findMany({
+      where: {
+        cart_id: cartId,
+      },
+      include: {
+        product: true,
+      },
+    });
+
+    const totalPrice = cartItems.reduce((total, item) => {
+      return total + (item.quantity * item.product.price);
+    }, 0);
+
+    await this._prisma.cart.update({
+      where: {
+        id: cartId,
+      },
+      data: {
+        total_price: totalPrice,
+      },
+    });
   }
 }
 

@@ -43,7 +43,7 @@ const routes = (handler) => [
   // CUSTOMER
   {
     method: 'GET',
-    path: '/customer/order/delivery-methods',
+    path: '/customer/order/delivery-methods/{cartId}',
     handler: handler.getSellerDeliveryMethodsHandler,
     options: {
       auth: 'mipamart_jwt',

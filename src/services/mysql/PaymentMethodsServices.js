@@ -67,27 +67,19 @@ class PaymentMethodsService {
     }
   }
 
-  // Mendapatkan metode bayar member sesuai item pada cart
-  async getPaymentMethodOfCartItemMember(customerId) {
-    const cartItem = await this._prisma.cartItem.findFirst({
+  // Mendapatkan metode bayar member pada cart
+  async getPaymentMethodMemberByCartId(cartId) {
+    const cart = await this._prisma.cart.findUnique({
       where: {
-        customer_id: customerId,
-      },
-      include: {
-        product: true,
+        id: cartId,
       },
     });
 
-    if (!cartItem || !cartItem.product) {
-      throw new NotFoundError('Keranjang kosong');
-    }
-
-    // jika ada item, dapatkan data member_id dari produk pertama di keranjang
-    const cartMemberId = cartItem.product.member_id;
+    const memberId = cart.member_id;
 
     const paymentMethods = await this._prisma.paymentMethod.findMany({
       where: {
-        member_id: cartMemberId,
+        member_id: memberId,
       },
     });
     return paymentMethods;
@@ -107,21 +99,18 @@ class PaymentMethodsService {
 
     const paymentMethodMember = paymentMethod.member_id;
 
-    const cartItem = await this._prisma.cartItem.findFirst({
+    const cart = await this._prisma.cart.findFirst({
       where: {
         customer_id: customerId,
       },
-      include: {
-        product: true,
-      },
     });
 
-    if (!cartItem || !cartItem.product) {
-      throw new NotFoundError('Keranjang kosong');
+    if (!cart) {
+      throw new NotFoundError('Keranjang tidak ditemukan');
     }
 
     // jika ada item, dapatkan data member_id dari produk pertama di keranjang
-    const cartMemberId = cartItem.product.member_id;
+    const cartMemberId = cart.member_id;
 
     // jika pemilik metode bayar dari payload tidak sama dengan pemilik produk di cart
     if (paymentMethodMember !== cartMemberId) {

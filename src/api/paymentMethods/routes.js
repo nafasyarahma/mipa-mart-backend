@@ -26,7 +26,7 @@ const routes = (handler) => [
   // CUSTOMER
   {
     method: 'GET',
-    path: '/customer/order/payment-methods',
+    path: '/customer/order/payment-methods/{cartId}',
     handler: handler.getSellerPaymentMethodsHandler,
     options: {
       auth: 'mipamart_jwt',
