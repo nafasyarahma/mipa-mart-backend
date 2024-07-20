@@ -3,7 +3,7 @@ const path = require('path');
 const routes = (handler) => [
   {
     method: 'POST',
-    path: '/customer/orders',
+    path: '/customer/orders/{cartId}',
     handler: handler.postOrdersHandler,
     options: {
       payload: {

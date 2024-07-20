@@ -153,11 +153,18 @@ class ProductsService {
   async editProductById(id, {
     name, description, price, status, productImages, categoryId,
   }) {
-    // Hapus gambar-gambar lama terkait dengan produk
-    await this.deleteProductFromStorage(id);
+    const product = await this._prisma.product.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        images: true,
+      },
+    });
 
-    // Tambahkan gambar-gambar baru
-    await this.addProductImages(productImages, id);
+    if (!product) {
+      throw new NotFoundError('Produk tidak ditemukan');
+    }
 
     const updateData = {
       name,
@@ -171,6 +178,34 @@ class ProductsService {
       updateData.category_id = categoryId || null;
     }
 
+    // Proses gambar baru jika ada
+    if (productImages !== undefined) {
+    // Hapus gambar-gambar lama terkait dengan produk
+      const oldImages = product.images.map(image => image.url);
+
+      let newUrls = [];
+
+      if (Array.isArray(productImages)) {
+        // Filter gambar baru untuk menemukan file baru yang diupload
+        const newUploadedImages = productImages.filter(image => typeof image !== 'string');
+        newUrls = productImages.filter(image => typeof image === 'string');
+
+        // Tambahkan URL dari gambar yang baru diupload ke newUrls
+        const uploadedImageUrls = await this.addProductImages(newUploadedImages, id);
+        newUrls.push(...uploadedImageUrls.map(image => image.url));
+      } else if (productImages !== null) {
+        // Jika productImages adalah objek tunggal (file atau URL)
+        if (typeof productImages === 'string') {
+          newUrls.push(productImages);
+        } else {
+          const uploadedImageUrls = await this.addProductImages([productImages], id);
+          newUrls.push(...uploadedImageUrls.map(image => image.url));
+        }
+      }
+
+      await this.deleteRemovedImageFromStorage(id, oldImages, newUrls);
+    }
+
     const result = await this._prisma.product.update({
       where: {
         id,
@@ -182,8 +217,8 @@ class ProductsService {
       throw new InvariantError('Gagal memperbarui produk');
     }
 
-    // dev mode
-    return result;
+    // // dev mode
+    // return result;
   }
 
   /* MENGUBAH STATUS PRODUK */
@@ -207,7 +242,7 @@ class ProductsService {
 
   /* MENGHAPUS PRODUK */
   async deleteProductById(id) {
-    await this.deleteProductFromStorage(id);
+    await this.deleteProductImageFromStorage(id);
 
     await this._prisma.product.delete({
       where: {
@@ -224,8 +259,13 @@ class ProductsService {
       if (Array.isArray(images)) {
         // Jika images adalah array (multiple file)
         for (const image of images) {
-          const filename = await this._storageService.writeFile(image, image.hapi);
-          const imageUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/product/${filename}`;
+          let imageUrl;
+          if (typeof image === 'string') {
+            imageUrl = image;
+          } else {
+            const filename = await this._storageService.writeFile(image, image.hapi);
+            imageUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/product/${filename}`;
+          }
 
           const savedImage = await this._prisma.productImages.create({
             data: {
@@ -235,7 +275,7 @@ class ProductsService {
           });
           uploadedImages.push(savedImage);
         }
-      } else if (images !== null) {
+      } else if (images !== null && images.hapi && images.hapi.headers) {
         // Jika images adalah objek tunggal (file tunggal)
         const filename = await this._storageService.writeFile(images, images.hapi);
         const imageUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/product/${filename}`;
@@ -256,7 +296,49 @@ class ProductsService {
   }
 
   // Menghapus Gambar dari Direktori saat Gambar Dihapus --
-  async deleteProductFromStorage(productId) {
+  async deleteRemovedImageFromStorage(productId, oldImages, newUrls) {
+    for (const oldImage of oldImages) {
+      if (!newUrls.includes(oldImage)) {
+        // Memisahkan bagian URL berdasarkan tanda '/'
+
+        const parts = oldImage.split('/');
+        // Mengambil nama file dari bagian terakhir array
+        const fileName = parts[parts.length - 1];
+
+        const imagePath = path.resolve(__dirname, `../../../static/upload/images/product/${fileName}`);
+
+        if (fs.existsSync(imagePath)) {
+          fs.unlink(imagePath, (err) => {
+            if (err) throw err;
+          });
+        }
+
+        // hapus gambar dari db yg tidak ada pada newUrls
+        await this._prisma.productImages.deleteMany({
+          where: {
+            AND: [
+              { product_id: productId },
+              { url: oldImage },
+            ],
+          },
+        });
+      }
+    }
+  }
+
+  // Mengecek id produk di db
+  async checkProductId(id) {
+    const productId = await this._prisma.product.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!productId || id === null) {
+      throw new NotFoundError('Id produk tidak ditemukan');
+    }
+  }
+
+  async deleteProductImageFromStorage(productId) {
     const productImages = await this._prisma.productImages.findMany({
       where: {
         product_id: productId,
@@ -276,24 +358,6 @@ class ProductsService {
           if (err) throw err;
         });
       }
-    }
-
-    await this._prisma.productImages.deleteMany({
-      where: {
-        product_id: productId,
-      },
-    });
-  }
-
-  // Mengecek id produk di db
-  async checkProductId(id) {
-    const productId = await this._prisma.product.findUnique({
-      where: {
-        id,
-      },
-    });
-    if (!productId || id === null) {
-      throw new NotFoundError('Id produk tidak ditemukan');
     }
   }
 

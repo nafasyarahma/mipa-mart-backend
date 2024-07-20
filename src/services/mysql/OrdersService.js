@@ -13,35 +13,36 @@ class OrdersService {
 
   /* MEMBUAT ORDER */
   async createOrder({
-    customerId, paymentMethodId, paymentImage, deliveryMethodId, note,
+    customerId, cartId, paymentMethodId, paymentImage, deliveryMethodId, note,
   }) {
     return this._prisma.$transaction(async (tx) => {
       // mendapatkan semua cart item
-      const cartItems = await tx.cartItem.findMany({
+      const cart = await tx.cart.findUnique({
         where: {
-          customer_id: customerId,
+          id: cartId,
         },
         include: {
-          product: {
+          cartItems: {
             include: {
-              images: true,
+              product: {
+                include: {
+                  images: true,
+                },
+              },
             },
           },
         },
       });
 
       // jika kosong tampilkan pesan
-      if (cartItems.length === 0) {
-        throw new NotFoundError('Keranjang kosong. Harap tambahkan produk');
+      if (!cart) {
+        throw new NotFoundError('Keranjang tidak ditemukan');
       }
 
       const id = `order-${nanoid(16)}`;
-      const memberId = cartItems[0].product.member_id;
+      const memberId = cart.member_id;
 
-      // hitung total harga
-      const price = cartItems.reduce((prev, current) => {
-        return prev + (current.quantity * current.product.price);
-      }, 0);
+      const totalPrice = cart.total_price;
 
       // Mengunggah gambar pembayaran jika ada
       const paymentImageUrl = await this.handlePaymentImage(paymentImage);
@@ -52,20 +53,21 @@ class OrdersService {
           id,
           customer_id: customerId,
           member_id: memberId,
-          total_price: price,
+          total_price: totalPrice,
           payment_image: paymentImageUrl,
           note,
         },
       });
 
       // Menambahkan produk ke tabel order produk
-      const orderProducts = cartItems.map(cart => ({
+      const orderProducts = cart.cartItems.map(item => ({
         order_id: id,
-        name: cart.product.name,
-        price: cart.product.price,
-        image: cart.product.images[0].url,
-        quantity: cart.quantity,
+        name: item.product.name,
+        price: item.product.price,
+        image: item.product.images[0].url,
+        quantity: item.quantity,
       }));
+
       await tx.orderProduct.createMany({ data: orderProducts });
 
       // Mengambil data metode pembayaran
@@ -107,9 +109,9 @@ class OrdersService {
         },
       });
 
-      await tx.cartItem.deleteMany({
+      await tx.cart.delete({
         where: {
-          customer_id: customerId,
+          id: cartId,
         },
       });
 

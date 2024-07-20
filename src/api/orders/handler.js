@@ -18,6 +18,7 @@ class OrdersHandler {
     } = request.payload;
 
     const { id: credentialId } = request.auth.credentials;
+    const { cartId } = request.params;
 
     await this._validator.validateOrderPayload(request.payload);
 
@@ -25,18 +26,23 @@ class OrdersHandler {
       await this._validator.validatePaymentImageHeaders(paymentImage.hapi.headers);
     }
 
-    await this._paymentMethodsService.verifyPaymentMethod({
-      customerId: credentialId, paymentMethodId,
-    });
+    // await this._paymentMethodsService.verifyPaymentMethod({
+    //   customerId: credentialId, paymentMethodId,
+    // });
 
-    if (deliveryMethodId) {
-      await this._deliveryMethodsService.verifyDeliveryMethod({
-        customerId: credentialId, deliveryMethodId,
-      });
-    }
+    // if (deliveryMethodId) {
+    //   await this._deliveryMethodsService.verifyDeliveryMethod({
+    //     customerId: credentialId, deliveryMethodId,
+    //   });
+    // }
 
     const order = await this._service.createOrder({
-      customerId: credentialId, paymentMethodId, paymentImage, deliveryMethodId, note,
+      customerId: credentialId,
+      cartId,
+      paymentMethodId,
+      paymentImage,
+      deliveryMethodId,
+      note,
     });
 
     const response = h.response({

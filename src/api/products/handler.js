@@ -86,9 +86,11 @@ class ProductsHandler {
 
     if (Array.isArray(productImages)) {
       for (const image of productImages) {
-        this._validator.validateImageHeaders(image.hapi.headers);
+        if (typeof image !== 'string') {
+          this._validator.validateImageHeaders(image.hapi.headers);
+        }
       }
-    } else {
+    } else if (typeof productImages !== 'string') {
       this._validator.validateImageHeaders(productImages.hapi.headers);
     }
 
