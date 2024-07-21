@@ -63,6 +63,16 @@ const routes = (handler) => [
     },
   },
 
+  /* ================= CUSTOMER ================= */
+  {
+    method: 'POST',
+    path: '/products/{id}/reviews',
+    handler: handler.postProductReview,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
+
   /* ================= KATALOG ================= */
   {
     method: 'GET',
@@ -73,6 +83,11 @@ const routes = (handler) => [
     method: 'GET',
     path: '/products/{id}',
     handler: handler.getProductByIdHandler,
+  },
+  {
+    method: 'GET',
+    path: '/products/{id}/reviews',
+    handler: handler.getProductReviewsHandler,
   },
 ];
 

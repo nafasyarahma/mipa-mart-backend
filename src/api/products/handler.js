@@ -133,6 +133,36 @@ class ProductsHandler {
       message: 'Produk berhasil dihapus',
     };
   }
+
+  async postProductReview(request) {
+    await this._validator.validateProductReviewPayload(request.payload);
+
+    const productId = request.params.id;
+    const { id: customerId } = request.auth.credentials;
+    const { comment, orderId } = request.payload;
+
+    await this._service.checkIfProductPurchased(customerId, productId);
+    await this._service.checkIfProductReviewed(customerId, productId, orderId);
+    await this._service.addProductReview(customerId, productId, orderId, comment);
+
+    return {
+      status: 'success',
+      message: 'Berhasil menambahkan ulasan',
+    };
+  }
+
+  async getProductReviewsHandler(request) {
+    const { id } = request.params;
+
+    const reviews = await this._service.getProductReviews(id);
+
+    return {
+      status: 'success',
+      data: {
+        reviews,
+      },
+    };
+  }
 }
 
 module.exports = ProductsHandler;

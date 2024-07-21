@@ -13,8 +13,18 @@ const ProductStatusPayloadSchema = Joi.object({
   status: Joi.string().valid('ready', 'preorder', 'soldout'),
 });
 
+const ProductReviewPayloadSchema = Joi.object({
+  comment: Joi.string().required(),
+  orderId: Joi.string().required(),
+});
+
 const ImageHeadersSchema = Joi.object({
   'content-type': Joi.string().valid('image/jpg', 'image/jpeg', 'image/png').required(),
 }).unknown();
 
-module.exports = { ProductPayloadSchema, ImageHeadersSchema, ProductStatusPayloadSchema };
+module.exports = {
+  ProductPayloadSchema,
+  ImageHeadersSchema,
+  ProductStatusPayloadSchema,
+  ProductReviewPayloadSchema,
+};

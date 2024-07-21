@@ -62,6 +62,7 @@ class OrdersService {
       // Menambahkan produk ke tabel order produk
       const orderProducts = cart.cartItems.map(item => ({
         order_id: id,
+        product_id: item.product_id,
         name: item.product.name,
         price: item.product.price,
         image: item.product.images[0].url,
@@ -141,6 +142,10 @@ class OrdersService {
       where: {
         customer_id: customerId,
         order_status: 'completed',
+      },
+      include: {
+        reviews: true,
+        products: true,
       },
 
     });

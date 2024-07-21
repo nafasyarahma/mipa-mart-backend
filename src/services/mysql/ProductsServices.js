@@ -104,6 +104,9 @@ class ProductsService {
 
   /* MENDAPATKAN DETAIL PRODUK */
   async getProductById(id) {
+    if (!id) {
+      throw new NotFoundError('ID produk tidak valid');
+    }
     const result = await this._prisma.product.findUnique({
       where: {
         id,
@@ -326,6 +329,25 @@ class ProductsService {
     }
   }
 
+  async addProductReview(customerId, productId, orderId, comment) {
+    const id = `review-${nanoid(16)}`;
+    const review = await this._prisma.review.create({
+      data: {
+        id,
+        customer_id: customerId,
+        product_id: productId,
+        order_id: orderId,
+        comment,
+      },
+    });
+
+    if (!review.id) {
+      throw new Error('Gagal menambahkan ulasan');
+    }
+
+    return review.id;
+  }
+
   // Mengecek id produk di db
   async checkProductId(id) {
     const productId = await this._prisma.product.findUnique({
@@ -378,6 +400,59 @@ class ProductsService {
     if (productMember !== memberId) {
       throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
     }
+  }
+
+  async checkIfProductPurchased(customerId, productId) {
+    // Query untuk memeriksa apakah produk telah dibeli oleh pelanggan
+    const purchasedProducts = await this._prisma.orderProduct.findMany({
+      where: {
+        AND: [
+          { order: { customer_id: customerId } },
+          { product_id: productId },
+        ],
+      },
+    });
+
+    if (purchasedProducts.length === 0) {
+      throw new AuthorizationError('Anda belum membeli produk ini');
+    }
+  }
+
+  async checkIfProductReviewed(customerId, productId, orderId) {
+    const existingReview = await this._prisma.review.findFirst({
+      where: {
+        AND: [
+          { customer_id: customerId },
+          { product_id: productId },
+          { order_id: orderId },
+        ],
+      },
+    });
+
+    if (existingReview) {
+      throw new InvariantError('Anda sudah memberikan ulasan untuk produk ini pada pesanan ini.');
+    }
+  }
+
+  async getProductReviews(productId) {
+    const reviews = await this._prisma.review.findMany({
+      where: {
+        product_id: productId,
+      },
+      include: {
+        customer: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (!reviews) {
+      throw new Error('Gagal mengambil ulasan');
+    }
+
+    return reviews;
   }
 }
 
