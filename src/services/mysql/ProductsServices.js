@@ -63,7 +63,12 @@ class ProductsService {
 
   /* MENDAPATKAN SEMUA PRODUK */
   async getAllProducts({ name, category }) {
-    const whereClause = {};
+    const whereClause = {
+      status: {
+        in: ['ready', 'preorder'],
+      },
+    };
+
     if (name) {
       whereClause.name = {
         contains: name, // Filter berdasarkan nama (menggunakan pencarian "contains")
@@ -329,7 +334,7 @@ class ProductsService {
     }
   }
 
-  async addProductReview(customerId, productId, orderId, comment) {
+  async addProductReview(customerId, productId, orderId, rating, comment) {
     const id = `review-${nanoid(16)}`;
     const review = await this._prisma.review.create({
       data: {
@@ -337,6 +342,7 @@ class ProductsService {
         customer_id: customerId,
         product_id: productId,
         order_id: orderId,
+        rating,
         comment,
       },
     });
@@ -442,6 +448,7 @@ class ProductsService {
       include: {
         customer: {
           select: {
+            username: true,
             name: true,
           },
         },

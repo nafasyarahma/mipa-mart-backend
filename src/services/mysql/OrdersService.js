@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable consistent-return */
 const { PrismaClient } = require('@prisma/client');
 const { nanoid } = require('nanoid');
@@ -37,6 +38,12 @@ class OrdersService {
       // jika kosong tampilkan pesan
       if (!cart) {
         throw new NotFoundError('Keranjang tidak ditemukan');
+      }
+
+      for (const item of cart.cartItems) {
+        if (item.product.status !== 'ready' && item.product.status !== 'preorder') {
+          throw new InvariantError(`Produk ${item.product.name} telah habis. Silahkan pesan kembali saat produk sudah tersedia.`);
+        }
       }
 
       const id = `order-${nanoid(16)}`;
@@ -129,7 +136,7 @@ class OrdersService {
       where: {
         customer_id: customerId,
         order_status: {
-          not: 'completed',
+          in: ['pending', 'processed'],
         },
       },
     });
@@ -141,7 +148,9 @@ class OrdersService {
     const result = await this._prisma.order.findMany({
       where: {
         customer_id: customerId,
-        order_status: 'completed',
+        order_status: {
+          in: ['completed', 'rejected', 'canceled'],
+        },
       },
       include: {
         reviews: true,
@@ -158,7 +167,7 @@ class OrdersService {
       where: {
         member_id: memberId,
         order_status: {
-          not: 'completed',
+          in: ['pending', 'processed'],
         },
       },
       include: {
@@ -175,7 +184,9 @@ class OrdersService {
     const result = await this._prisma.order.findMany({
       where: {
         member_id: memberId,
-        order_status: 'completed',
+        order_status: {
+          in: ['completed', 'rejected', 'canceled'],
+        },
       },
       include: {
         payment_method: true,
@@ -303,6 +314,39 @@ class OrdersService {
     if (orderCustomer !== customerId) {
       throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
     }
+  }
+
+  /* CEK STATUS ORDER, HANYA PENDING YG DAPAT DICANCEL */
+  async checkIfOrderCancelable(orderId) {
+    const order = await this._prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!order) {
+      throw new NotFoundError('Order tidak ditemukan');
+    }
+
+    if (order.order_status !== 'pending') {
+      throw new InvariantError('Anda sudah tidak dapat membatalkan pesanan ini');
+    }
+  }
+
+  async getOrderReviewHistory(orderId, customerId) {
+    const reviews = await this._prisma.review.findMany({
+      where: {
+        AND: [
+          { customer_id: customerId },
+          { order_id: orderId },
+        ],
+      },
+      include: {
+        product: true,
+      },
+    });
+    if (!reviews) {
+      throw new NotFoundError('Ulasan tidak ditemukan');
+    }
+    return reviews;
   }
 }
 

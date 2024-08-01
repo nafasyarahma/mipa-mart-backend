@@ -48,6 +48,22 @@ const routes = (handler) => [
     },
   },
   {
+    method: 'PUT',
+    path: '/customer/orders/{id}/cancel',
+    handler: handler.cancelOrderHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
+  {
+    method: 'GET',
+    path: '/customer/orders/{orderId}/review/history',
+    handler: handler.getOrderReviewHistoryHandler,
+    options: {
+      auth: 'mipamart_jwt',
+    },
+  },
+  {
     method: 'GET',
     path: '/upload/images/payment/{param*}',
     handler: {

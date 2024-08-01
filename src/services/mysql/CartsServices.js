@@ -25,6 +25,10 @@ class CartsService {
       throw new NotFoundError('Produk tidak ditemukan');
     }
 
+    if (product.status === 'soldout') {
+      throw new InvariantError('Produk ini sudah habis');
+    }
+
     // dapatkan member_id dari product yang ditambahkan
     const memberId = product.member_id;
 
@@ -147,14 +151,6 @@ class CartsService {
     if (!cart) {
       throw new InvariantError('Keranjang tidak ditemukan');
     }
-
-    // const processedResult = cart.cartItems.map(item => {
-    //   if (item.product.images.length > 0) {
-    //     item.product.images = item.product.images[0].url;
-    //   }
-    //   return item;
-    // });
-    // console.log(processedResult)
 
     return cart;
   }

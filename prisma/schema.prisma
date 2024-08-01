@@ -209,7 +209,8 @@ model Review {
   customer    Customer    @relation(fields: [customer_id], references: [id], onDelete: Cascade)
   order_id    String      @db.VarChar(255)
   order       Order       @relation(fields: [order_id], references: [id], onDelete: Cascade)
-  comment     String     @db.Text
+  rating      Int         @db.Int
+  comment     String      @db.Text
   createdAt   DateTime    @default(now())
 
   @@map("reviews")

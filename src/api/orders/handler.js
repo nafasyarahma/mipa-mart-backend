@@ -108,6 +108,35 @@ class OrdersHandler {
     };
   }
 
+  async cancelOrderHandler(request) {
+    const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+
+    await this._service.verifyOrderCustomer(id, credentialId);
+    await this._service.checkIfOrderCancelable(id);
+    await this._service.changeOrderStatus(id, { orderStatus: 'canceled' });
+
+    return {
+      status: 'success',
+      message: 'Pesanan berhasil dibatalkan!',
+    };
+  }
+
+  async getOrderReviewHistoryHandler(request) {
+    const { orderId } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+
+    await this._service.verifyOrderCustomer(orderId, credentialId);
+    const reviews = await this._service.getOrderReviewHistory(orderId, credentialId);
+
+    return {
+      status: 'success',
+      data: {
+        reviews,
+      },
+    };
+  }
+
   /* ================================ MEMBER SCOPE ================================ */
 
   async getMemberOrderListHandler(request) {

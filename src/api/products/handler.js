@@ -139,11 +139,11 @@ class ProductsHandler {
 
     const productId = request.params.id;
     const { id: customerId } = request.auth.credentials;
-    const { comment, orderId } = request.payload;
+    const { rating, comment, orderId } = request.payload;
 
     await this._service.checkIfProductPurchased(customerId, productId);
     await this._service.checkIfProductReviewed(customerId, productId, orderId);
-    await this._service.addProductReview(customerId, productId, orderId, comment);
+    await this._service.addProductReview(customerId, productId, orderId, rating, comment);
 
     return {
       status: 'success',

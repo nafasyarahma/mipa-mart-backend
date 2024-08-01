@@ -15,6 +15,8 @@ const ProductStatusPayloadSchema = Joi.object({
 
 const ProductReviewPayloadSchema = Joi.object({
   comment: Joi.string().required(),
+  rating: Joi.number().integer().min(1).max(5)
+    .required(),
   orderId: Joi.string().required(),
 });
 
