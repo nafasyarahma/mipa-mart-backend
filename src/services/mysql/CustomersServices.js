@@ -34,7 +34,7 @@ class CustomersService {
     });
 
     if (result.id) {
-      this._emailService.sendEmailVerification(id, email);
+      // this._emailService.sendEmailVerification(id, email);
       return result.id;
     }
     throw new InvariantError('Customer gagal ditambahkan');

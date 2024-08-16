@@ -83,8 +83,8 @@ model ProductImages {
 model PaymentMethod {
   id          String      @id @db.VarChar(255)
   provider    String      @db.VarChar(255)
-  no_account  String      @db.VarChar(255)
-  name        String      @db.VarChar(255)
+  no_account  String?     @db.VarChar(255)
+  name        String?     @db.VarChar(255)
   member      Member      @relation(fields: [member_id], references: [id], onDelete: Cascade)  
   member_id   String      @db.VarChar(255)
 
@@ -210,7 +210,7 @@ model Review {
   order_id    String      @db.VarChar(255)
   order       Order       @relation(fields: [order_id], references: [id], onDelete: Cascade)
   rating      Int         @db.Int
-  comment     String      @db.Text
+  comment     String?     @db.Text
   createdAt   DateTime    @default(now())
 
   @@map("reviews")

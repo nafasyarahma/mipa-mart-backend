@@ -134,7 +134,7 @@ class ProductsHandler {
     };
   }
 
-  async postProductReview(request) {
+  async postProductReview(request, h) {
     await this._validator.validateProductReviewPayload(request.payload);
 
     const productId = request.params.id;
@@ -143,12 +143,24 @@ class ProductsHandler {
 
     await this._service.checkIfProductPurchased(customerId, productId);
     await this._service.checkIfProductReviewed(customerId, productId, orderId);
-    await this._service.addProductReview(customerId, productId, orderId, rating, comment);
+    const reviewId = await this._service.addProductReview(
+      customerId,
+      productId,
+      orderId,
+      rating,
+      comment,
+    );
 
-    return {
+    const response = h.response({
       status: 'success',
       message: 'Berhasil menambahkan ulasan',
-    };
+      data: {
+        reviewId,
+      },
+    });
+
+    response.code(201);
+    return response;
   }
 
   async getProductReviewsHandler(request) {

@@ -81,7 +81,7 @@ const init = async () => {
     host: process.env.HOST,
     routes: {
       cors: {
-        origin: ['*'],
+        origin: [process.env.ALLOWED_ORIGINS],
       },
     },
   });
@@ -201,6 +201,13 @@ const init = async () => {
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
 
+    // Set Header CSP dan X-Frame-Options
+    // if (!response.isBoom) {
+    //   response.header('X-Frame-Options', 'DENY');
+    //   response.header('Content-Security-Policy', "default-src 'self'; script-src 'self' https://apis.google.com; frame-ancestors 'none'");
+    //   return h.continue;
+    // }
+
     if (response instanceof Error) {
       // penanganan client error secara internal
       if (response instanceof ClientError) {
@@ -232,7 +239,7 @@ const init = async () => {
   });
 
   await server.start();
-  console.log(`Server berjalan pada ${server.info.uri}`);
+  console.log(`Server berjalan pada  ${server.info.uri}`);
 };
 
 init();

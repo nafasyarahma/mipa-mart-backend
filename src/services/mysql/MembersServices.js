@@ -18,6 +18,7 @@ class MembersService {
   }) {
     await this.verifyNewUsername(username);
     await this.verifyNewEmail(email);
+    await this.verifyMemberNpm(npm);
 
     const id = `member-${nanoid(16)}`;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -235,6 +236,19 @@ class MembersService {
       throw new NotFoundError('Email Tidak Ditemukan');
     }
     return result;
+  }
+
+  // Mengecek npm di db
+  async verifyMemberNpm(npm) {
+    const memberNpm = await this._prisma.member.findUnique({
+      where: {
+        npm,
+      },
+    });
+
+    if (memberNpm) {
+      throw new InvariantError('Username sudah digunakan. Harap ganti username Anda!');
+    }
   }
 
   // Memverifikasi kredensial (uname/pw)
