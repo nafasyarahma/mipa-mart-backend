@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://root:@localhost:3306/mipa_mart"
+  url      = "mysql://root:ewVtYcZmFKqzqUCgTqJWCRmTkWLqAFQC@mysql.railway.internal:3306/railway"
 }
 
 model Authentications {
@@ -247,6 +247,7 @@ enum VerifStatus {
 enum OrderStatus {
   pending
   processed
+  ready
   rejected
   canceled
   completed

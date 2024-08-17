@@ -136,7 +136,7 @@ class OrdersService {
       where: {
         customer_id: customerId,
         order_status: {
-          in: ['pending', 'processed'],
+          in: ['pending', 'processed', 'ready'],
         },
       },
     });
@@ -167,7 +167,7 @@ class OrdersService {
       where: {
         member_id: memberId,
         order_status: {
-          in: ['pending', 'processed'],
+          in: ['pending', 'processed', 'ready'],
         },
       },
       include: {

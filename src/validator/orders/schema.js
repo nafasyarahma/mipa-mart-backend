@@ -8,7 +8,7 @@ const OrderPayloadSchema = Joi.object({
 });
 
 const OrderStatusPayloadSchema = Joi.object({
-  orderStatus: Joi.string().valid('processed', 'rejected', 'completed'),
+  orderStatus: Joi.string().valid('processed', 'ready', 'canceled', 'completed'),
 });
 
 const PaymentStatusPayloadSchema = Joi.object({
