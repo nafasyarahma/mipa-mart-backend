@@ -272,7 +272,7 @@ class ProductsService {
             imageUrl = image;
           } else {
             const filename = await this._storageService.writeFile(image, image.hapi);
-            imageUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/product/${filename}`;
+            imageUrl = `${process.env.BE_URL}/upload/images/product/${filename}`;
           }
 
           const savedImage = await this._prisma.productImages.create({
@@ -286,7 +286,7 @@ class ProductsService {
       } else if (images !== null && images.hapi && images.hapi.headers) {
         // Jika images adalah objek tunggal (file tunggal)
         const filename = await this._storageService.writeFile(images, images.hapi);
-        const imageUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/product/${filename}`;
+        const imageUrl = `${process.env.BE_URL}/upload/images/product/${filename}`;
         const savedImage = await this._prisma.productImages.create({
           data: {
             product_id: productId,

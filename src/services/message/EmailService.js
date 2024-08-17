@@ -25,7 +25,7 @@ class EmailService {
         from: process.env.EMAIL_USER,
         to: email,
         subject: 'Email Verification',
-        html: `<p>Please click <a href="http://${process.env.HOST}:${process.env.PORT}/${role}/verify-email/${token}">here</a> to verify your email.</p>`,
+        html: `<p>Please click <a href="${process.env.BE_URL}/${role}/verify-email/${token}">here</a> to verify your email.</p>`,
       };
 
       await this._transporter.sendMail(mailOptions);

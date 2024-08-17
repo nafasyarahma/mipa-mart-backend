@@ -24,7 +24,7 @@ class MembersService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const filename = await this._storageService.writeFile(ktmImage, ktmImage.hapi);
-    const ktmUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/ktm/${filename}`;
+    const ktmUrl = `${process.env.BE_URL}/upload/images/ktm/${filename}`;
 
     const result = await this._prisma.member.create({
       data: {
@@ -247,7 +247,7 @@ class MembersService {
     });
 
     if (memberNpm) {
-      throw new InvariantError('Username sudah digunakan. Harap ganti username Anda!');
+      throw new InvariantError('Mahasiswa dengan NPM ini sudah terdaftar');
     }
   }
 

@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://root:ewVtYcZmFKqzqUCgTqJWCRmTkWLqAFQC@mysql.railway.internal:3306/railway"
+  url      = env("DATABASE_URL")
 }
 
 model Authentications {

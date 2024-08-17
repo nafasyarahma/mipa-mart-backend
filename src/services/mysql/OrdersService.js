@@ -271,7 +271,7 @@ class OrdersService {
     if (paymentImage && paymentImage.hapi && paymentImage.hapi.filename) {
       // Jika gambar pembayaran ada, simpan file dan dapatkan URL-nya
       const filename = await this._storageService.writeFile(paymentImage, paymentImage.hapi);
-      const imageUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/payment/${filename}`;
+      const imageUrl = `${process.env.BE_URL}/upload/images/payment/${filename}`;
       return imageUrl;
     }
     // Jika tidak ada gambar pembayaran, kembalikan null
