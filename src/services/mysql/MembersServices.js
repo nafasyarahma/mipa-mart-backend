@@ -127,9 +127,10 @@ class MembersService {
       newData.email_verified = false;
     }
 
-    const match = await bcrypt.compare(password, currentData.password);
+    // bandingkan password dan passwoord dari db
+    const match = password === currentData.password;
     if (!match) {
-      // jika password tidak match (diedit) hash pasword baru
+      // jika tidak sama hash password baru
       newData.password = await bcrypt.hash(password, 10);
     } else {
       // jika password match (tidak diedit) password tetap
@@ -288,6 +289,22 @@ class MembersService {
         throw new AuthenticationError('Akun anda sedang dalam proses verifikasi. Mohon tunggu hingga status disetujui');
       } else if (member.verif_status === 'rejected') {
         throw new AuthenticationError('Permintaan registrasi akun Anda ditolak. Silahkan registrasi ulang dengan data yang benar atau hubungi Admin');
+      }
+    }
+    return null;
+  }
+
+  // Mengecek status verifikasi email member
+  async checkMemberEmailVerifStatus(username) {
+    const member = await this._prisma.member.findFirst({
+      where: {
+        username,
+      },
+    });
+
+    if (member) {
+      if (!member.email_verified) {
+        throw new AuthenticationError('Email Anda belum diverifikasi. Silakan verifikasi email terlebih dahulu.');
       }
     }
     return null;

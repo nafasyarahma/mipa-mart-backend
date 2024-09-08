@@ -39,6 +39,7 @@ class AuthenticationsHandler {
     if (!id) {
       id = await this._membersService.verifyMemberCredential(username, password);
       if (id) {
+        await this._membersService.checkMemberEmailVerifStatus(username);
         await this._membersService.checkVerificationStatus(username);
         role = 'member';
       }
@@ -48,6 +49,7 @@ class AuthenticationsHandler {
     if (!id) {
       id = await this._customersService.verifyCustomerCredential(username, password);
       if (id) {
+        await this._customersService.checkCustomerEmailVerifStatus(username);
         role = 'customer';
       }
     }

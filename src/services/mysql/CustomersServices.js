@@ -92,7 +92,7 @@ class CustomersService {
       newData.email_verified = false;
     }
 
-    const match = await bcrypt.compare(password, currentData.password);
+    const match = password === currentData.password;
     if (!match) {
       // jika password tidak match (diedit) hash pasword baru
       newData.password = await bcrypt.hash(password, 10);
@@ -205,6 +205,21 @@ class CustomersService {
         throw new AuthenticationError('Username atau password yang Anda masukkan salah');
       }
       return id;
+    }
+    return null;
+  }
+
+  async checkCustomerEmailVerifStatus(username) {
+    const customer = await this._prisma.customer.findFirst({
+      where: {
+        username,
+      },
+    });
+
+    if (customer) {
+      if (!customer.email_verified) {
+        throw new AuthenticationError('Email Anda belum diverifikasi. Silakan verifikasi email terlebih dahulu.');
+      }
     }
     return null;
   }
